@@ -18,3 +18,28 @@ Estado inicial: diseño documentado. Las etapas están pendientes. P0 permite de
 | 12 | P0. Completar README. | Instalación, credenciales, guion y respuestas §9. | Contratos y comandos estables | Un evaluador arranca con Docker y Java 25 y repite el flujo. | Ensayo siguiendo únicamente el README. |
 
 Ejecutar 1–4, 6–7 y 9 para tener primero el recorrido por API. Las etapas 5 y 8 pueden completarse después del núcleo, con sus controles de seguridad. Reservar unas 2 h 50 min para el núcleo, 45 min para P1 backend, 55 min para Angular y 40 min para integración y README, unas 5 h 10 min en total. Si se reduce el tiempo, mantener integridad y seguridad, informar pendientes explícitos y privilegiar una demo reproducible. Las pruebas se incorporan en cada etapa.
+
+## Estado del incremento de infraestructura
+
+Las etapas 1 y 2 están implementadas y verificadas en
+`feature/backend-foundation`. Tras reparar Docker Desktop,
+`docker compose config --quiet` pasó y PostgreSQL 17.12 arrancó con estado
+`healthy`, publicado solo en `127.0.0.1:55432`.
+
+Con Java 25, `gradlew.bat clean build` compiló el backend y pasó las tres
+pruebas de integración contra el contenedor. Spring Boot arrancó, la
+consulta JDBC llegó a PostgreSQL y la prueba HTTP verificó el estado
+`UP` y el bloqueo de otros endpoints de gestión. Liquibase mantiene el
+changelog vacío. La etapa 3 y las posteriores siguen pendientes.
+
+## Hallazgos de auditoría pendientes
+
+- Etapa 3: concretar normalización en la migración, referencia a la ingesta
+  y prueba de deduplicación con una última fila no disponible.
+- Etapas 4, 5 y 7: cerrar la matriz por operación, módulo y contexto, el
+  bloqueo del último administrador y las fechas de acciones repetidas.
+- Etapas 6 y 8: confirmar precisión y residual, límites de adjuntos y el
+  comportamiento de radicación, compensación y reintento ante fallos.
+- Etapas 9 a 12: comprobar los cuatro roles, ambas pestañas, frescura,
+  acción de ofertar oculta, administración y vista previa. Verificar
+  arranque desde cero y contenido del README, incluidas las ocho respuestas.
