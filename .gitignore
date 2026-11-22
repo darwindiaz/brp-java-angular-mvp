@@ -1,0 +1,42 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Java / Gradle
+.gradle/
+build/
+out/
+*.class
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+.npm/
+
+# Logs
+*.log
+logs/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local uploads and application data
+uploads/
+storage/
+data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
