@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: optional:file:../.env[.properties]
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:${POSTGRES_PORT:55432}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+server:
+  address: 127.0.0.1

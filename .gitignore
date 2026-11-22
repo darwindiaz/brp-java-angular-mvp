@@ -9,6 +9,7 @@
 .gradle/
 build/
 out/
+/backend/bin/
 *.class
 
 # Angular / Node
