@@ -169,6 +169,15 @@ La pestaña de seguimiento conserva `SEGUIMIENTO` como permiso independiente.
 exitosas, incluidas cinco nuevas del selector, y 0 fallos, 0 errores y 0
 omitidas.
 
+## Etapa 10.1 — Fundación Angular y Docker
+
+- Base Angular 20 con compilación estricta, componentes standalone, rutas diferidas, formularios reactivos y diagnóstico de conectividad.
+- Proxy de desarrollo y Nginx con el prefijo `/api`. Compose integra frontend, backend y PostgreSQL y publica únicamente el frontend en la configuración conjunta.
+- Verificación local en Windows con Node.js 20.19.6. El proyecto fija Angular CLI y el builder en 20.3.43 tras revisar las alertas del parche 20.3.26 instalado globalmente. `npm audit --omit=dev` reportó cero alertas. Quedan 16 alertas moderadas en dependencias de desarrollo, fuera de la imagen de ejecución de Nginx.
+- Las compilaciones de producción y desarrollo finalizaron correctamente. El proxy local sirvió `/diagnostico`, obtuvo `UP` de Spring Boot con PostgreSQL 17.12 aislado y recibió `401` al consultar `/api/auth/me` sin credenciales. Chrome comprobó el estado disponible en la pantalla de diagnóstico con el CLI local y con Nginx.
+- La imagen de Angular se construyó con `npm ci` y Nginx sirvió `/diagnostico`. `docker compose ps` confirmó que solo el frontend publicó un puerto. Esta comprobación usó una imagen temporal de Spring Boot con el JAR compilado en Windows. El build estándar de la imagen del backend quedó pendiente tras un fallo TLS en Maven Central y dos reintentos interrumpidos por timeout al descargar Gradle.
+- La autenticación y las pantallas de negocio corresponden a entregas posteriores de la fase 10.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta

@@ -1,0 +1,58 @@
+.connection-panel {
+  max-width: 37rem;
+  border: 1px solid #cfddd9;
+  border-radius: .75rem;
+  background: #fff;
+  padding: clamp(1.15rem, 5vw, 2.5rem);
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    line-height: 1.2;
+  }
+}
+
+.connection-panel__description {
+  color: #435b55;
+}
+
+.connection-panel__status {
+  margin: 1.5rem 0;
+  font-weight: 650;
+
+  &[data-state='up'] { color: #17664b; }
+  &[data-state='unavailable'] { color: #9d3027; }
+}
+
+.connection-panel__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem 1.25rem;
+
+  button {
+    border: 0;
+    border-radius: .35rem;
+    background: #15463e;
+    color: #fff;
+    padding: .65rem 1rem;
+    font: inherit;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: progress;
+      opacity: .65;
+    }
+  }
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+}
+
+.connection-panel__detail {
+  margin: 1rem 0 0;
+  overflow-wrap: anywhere;
+}
