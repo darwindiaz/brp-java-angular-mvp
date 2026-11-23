@@ -1,0 +1,27 @@
+:host { display: block; }
+
+.login { display: grid; grid-template-columns: minmax(17rem, 2fr) 3fr; min-height: 100dvh; }
+.identity {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(2rem, 6vw, 6rem); background: #15463e; color: #fff;
+  strong { font-size: 1.25rem; letter-spacing: .14em; }
+  p { margin: 1.5rem 0 0; font-size: clamp(2rem, 4vw, 4rem); line-height: 1.12; font-weight: 650; }
+}
+.form-panel { display: grid; place-items: center; background: #fff; padding: clamp(1.5rem, 6vw, 5rem); }
+form { display: grid; gap: .7rem; width: min(100%, 26rem); }
+h1 { margin: 0 0 1rem; font-size: clamp(1.8rem, 4vw, 2.5rem); }
+label { font-weight: 650; margin-top: .45rem; }
+input, button { font: inherit; border-radius: .45rem; padding: .75rem .9rem; }
+input { border: 1px solid #829b93; width: 100%; }
+button { border: 0; background: #15463e; color: white; font-weight: 700; cursor: pointer; margin-top: .8rem; }
+button:disabled { opacity: .7; cursor: wait; }
+.notice, .error { padding: .7rem; border-radius: .45rem; margin: 0; background: #eef6f2; }
+.error, small { color: #922b32; }
+.error { background: #fff0ef; }
+@media (max-width: 650px) {
+  .login { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .identity { padding: 1.5rem; }
+  .identity p { font-size: 1.6rem; margin-top: .4rem; }
+  .identity br { display: none; }
+  .form-panel { align-items: start; padding-top: 2.5rem; }
+}

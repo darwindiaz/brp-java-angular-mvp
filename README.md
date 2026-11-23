@@ -72,6 +72,12 @@ Abre `http://127.0.0.1:8088/diagnostico`. `BRP_FRONTEND_PORT` permite cambiar es
 
 El puerto del overlay queda en loopback para la demo. Si se despliega detrás de Nginx, el limitador actual de inicio de sesión puede agrupar usuarios bajo la IP del proxy. Véanse las consideraciones de despliegue en [Identidad y aprovisionamiento](#identidad-y-aprovisionamiento).
 
+### Sesión y navegación Angular
+
+La raíz abre `/inicio` con una sesión válida y `/login` cuando hace falta identificarse. Angular conserva el JWT en `sessionStorage` y valida el usuario activo con `GET /api/auth/me` al iniciar sesión y recargar la pestaña. La sesión se limpia al cerrar sesión, expirar el token o recibir un `401` de una solicitud autenticada. Un `403` conserva la sesión.
+
+El menú y las rutas aplican las combinaciones de rol y módulo del [contrato de autenticación](docs/frontend-auth-contract.md). Las rutas de los módulos futuros indican que la interfaz funcional sigue pendiente. `/diagnostico` sigue disponible para comprobar conectividad.
+
 ## Identidad y aprovisionamiento
 
 Antes del primer arranque, genera el hash BCrypt de la contraseña inicial
