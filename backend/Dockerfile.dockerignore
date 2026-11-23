@@ -1,0 +1,16 @@
+**
+!backend/
+backend/**
+!backend/gradlew
+!backend/build.gradle
+!backend/settings.gradle
+!backend/gradle/
+!backend/gradle/**
+!backend/src/
+backend/src/**
+!backend/src/main/
+!backend/src/main/**
+!docs/
+docs/**
+!docs/source/
+!docs/source/brp_ejemplo.csv

@@ -1,0 +1,24 @@
+.site-header {
+  background: #15463e;
+  color: #fff;
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: .35rem 1rem;
+  max-width: 65rem;
+  margin: 0 auto;
+  padding: 1rem clamp(1rem, 5vw, 3rem);
+
+  strong {
+    font-size: 1.25rem;
+  }
+}
+
+main {
+  max-width: 65rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 7vw, 5rem) clamp(1rem, 5vw, 3rem);
+}

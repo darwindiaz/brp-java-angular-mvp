@@ -47,6 +47,31 @@ Invoke-RestMethod http://127.0.0.1:8080/actuator/health
 La respuesta esperada es HTTP 200 con `status: UP`. El endpoint no expone
 detalles de infraestructura.
 
+## Fundación Angular y Docker
+
+La base usa Angular 20.3.35, Angular CLI local 20.3.43, Node.js 20.19.6, npm 10.8.2 y TypeScript 5.9. Angular 20.3 admite Node.js `^20.19.0` y TypeScript `>=5.8 <6.0`. El CLI local se instala con el proyecto y `npm start` lo usa automáticamente. [Matriz de compatibilidad de Angular](https://angular.dev/reference/versions)
+
+Desde la raíz, inicia PostgreSQL y Spring Boot según los apartados anteriores. Con Spring Boot en `127.0.0.1:8080`, ejecuta en otra terminal PowerShell:
+
+```powershell
+Set-Location frontend
+npm ci
+npm start
+```
+
+Abre `http://127.0.0.1:4200/diagnostico`. El proxy de Angular reenvía `/api/*` a Spring Boot y traduce `/api/health` a `/actuator/health`. Desde `frontend/`, `npm run build -- --configuration production` genera la compilación optimizada en `dist/brp-frontend/browser/`. `src/app/core/` contiene infraestructura compartida, `src/app/features/` agrupa pantallas por funcionalidad y `src/environments/` define la configuración de compilación. Cada componente tiene su plantilla HTML y su hoja SCSS separadas.
+
+Para ejecutar los tres servicios juntos, configura `.env` según las secciones de PostgreSQL e identidad. Compose también admite esas variables desde el entorno del proceso. Desde la raíz:
+
+```powershell
+docker compose -f docker-compose.yml -f compose.frontend.yml config --quiet
+docker compose -f docker-compose.yml -f compose.frontend.yml up -d --build
+```
+
+Abre `http://127.0.0.1:8088/diagnostico`. `BRP_FRONTEND_PORT` permite cambiar ese puerto. Nginx sirve la compilación estática y reenvía `/api` a `backend:8080`. Spring Boot se conecta a `postgres:5432` a través de la red interna de Compose. Las llamadas del navegador usan el mismo origen en ambos modos. El overlay mantiene los volúmenes de PostgreSQL y adjuntos. Si PostgreSQL ya está activo en modo local, detén ese servicio con `docker compose stop` antes de cambiar de modo.
+
+El puerto del overlay queda en loopback para la demo. Si se despliega detrás de Nginx, el limitador actual de inicio de sesión puede agrupar usuarios bajo la IP del proxy. Véanse las consideraciones de despliegue en [Identidad y aprovisionamiento](#identidad-y-aprovisionamiento).
+
 ## Identidad y aprovisionamiento
 
 Antes del primer arranque, genera el hash BCrypt de la contraseña inicial
