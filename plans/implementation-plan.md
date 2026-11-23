@@ -299,6 +299,24 @@ persistencia y la infraestructura se mantienen intactos.
   un importe o descuento tiene una magnitud de 100.000.000.000 o mayor,
   para evitar pérdida silenciosa de precisión.
 
+## Etapa 10.7 — Administración en Angular
+
+- Ruta diferida `/administracion` protegida por el rol `ADMINISTRADOR`
+  y módulo `ADMINISTRACION`. Incluye listado, alta, cambio de rol,
+  catálogo de módulos y concesión o retiro individual.
+- Consume las rutas existentes bajo `/api/admin`. Usa los módulos del
+  listado al seleccionar una cuenta y los vuelve a consultar tras cada
+  cambio. Mantiene los identificadores exactos y limita la contraseña
+  al formulario de alta.
+- La pantalla protege el acceso administrativo propio. El servidor
+  garantiza que exista un administrador efectivo y registra la auditoría
+  de permisos. Una escritura de resultado incierto exige reconciliar el
+  estado antes de permitir otro cambio.
+- Pasaron el build de producción con TypeScript y plantillas estrictos,
+  once comprobaciones locales con HTTP simulado y once pruebas de
+  identidad en PostgreSQL aislado. El aprovisionamiento desde Angular
+  queda pendiente para el recorrido manual con la cuenta administrativa.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta

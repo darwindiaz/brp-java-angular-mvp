@@ -1,0 +1,139 @@
+<section aria-labelledby="admin-title">
+  <h1 id="admin-title">Administración de usuarios</h1>
+
+  @if (accessDenied()) {
+    <p class="error" role="alert">Tu cuenta no tiene permiso para administrar usuarios.</p>
+  } @else {
+    @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
+    @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    @if (busy()) { <p role="status">Procesando operación…</p> }
+    @if (pendingSync() && !busy()) {
+      <div class="notice">
+        <p role="status">Consulta el estado actual de la cuenta antes de realizar nuevos cambios.</p>
+        <button type="button" (click)="retrySync()">Verificar estado</button>
+      </div>
+    }
+
+    <section class="panel" aria-labelledby="users-title">
+      <header class="heading">
+        <h2 id="users-title">Usuarios</h2>
+        <button type="button" (click)="reloadUsers()" [disabled]="loadingUsers() || busy()">Actualizar usuarios</button>
+      </header>
+      @if (loadingUsers()) { <p role="status">Consultando usuarios…</p> }
+      @if (usersError()) { <p class="error" role="alert">{{ usersError() }}</p> }
+      @if (users().length) {
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Listado de usuarios">
+          <table aria-label="Usuarios registrados">
+            <thead><tr>
+              <th scope="col">ID</th><th scope="col">Nombre</th><th scope="col">Login</th>
+              <th scope="col">Rol</th><th scope="col">Estado</th><th scope="col">Módulos</th><th scope="col">Acción</th>
+            </tr></thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr [class.selected]="selectedId() === user.id">
+                  <th scope="row">{{ user.id }}</th><td>{{ user.name }}</td><td>{{ user.login }}</td>
+                  <td>{{ user.role }}</td><td>{{ user.active ? 'Activo' : 'Inactivo' }}</td>
+                  <td>
+                    @for (code of user.modules; track code) {
+                      <span class="module">{{ moduleName(code) }}</span>
+                    } @empty { Sin módulos }
+                  </td>
+                  <td><button type="button" [attr.aria-pressed]="selectedId() === user.id"
+                    [attr.aria-label]="'Administrar a ' + user.login" [disabled]="blocked()" (click)="select(user)">
+                    {{ selectedId() === user.id ? 'Seleccionado' : 'Administrar' }}
+                  </button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (!loadingUsers() && !usersError()) {
+        <p role="status">No hay usuarios para mostrar.</p>
+      }
+    </section>
+
+    <div class="editor-grid">
+      <section class="panel" aria-labelledby="create-title">
+        <h2 id="create-title">Crear usuario</h2>
+        <form [formGroup]="createForm" (ngSubmit)="create()" novalidate>
+          <fieldset [disabled]="blocked()">
+            <label for="admin-name">Nombre</label>
+            <input id="admin-name" formControlName="name" maxlength="120" autocomplete="off" required>
+            @if (fieldError('name'); as message) { <span class="field-error">{{ message }}</span> }
+            @else if (createForm.controls.name.touched && createForm.controls.name.invalid) {
+              <span class="field-error">Ingresa un nombre de hasta 120 caracteres.</span>
+            }
+
+            <label for="admin-login">Login</label>
+            <input id="admin-login" formControlName="login" maxlength="100" autocomplete="off" required>
+            @if (fieldError('login'); as message) { <span class="field-error">{{ message }}</span> }
+            @else if (createForm.controls.login.touched && createForm.controls.login.invalid) {
+              <span class="field-error">Usa hasta 80 caracteres: letras sin tilde, números, punto, guion o guion bajo. Empieza con una letra o número.</span>
+            }
+
+            <label for="admin-password">Contraseña inicial</label>
+            <input id="admin-password" type="password" formControlName="password" autocomplete="new-password" required
+              aria-describedby="admin-password-help">
+            <small id="admin-password-help">Mínimo 8 caracteres y máximo 72 bytes UTF-8.</small>
+            @if (fieldError('password'); as message) { <span class="field-error">{{ message }}</span> }
+            @else if (createForm.controls.password.touched && createForm.controls.password.invalid) {
+              <span class="field-error">Revisa la longitud de la contraseña.</span>
+            }
+
+            <label for="admin-create-role">Rol</label>
+            <select id="admin-create-role" formControlName="role" required>
+              <option value="">Seleccionar</option>
+              @for (option of roleOptions; track option) { <option [value]="option">{{ option }}</option> }
+            </select>
+            @if (fieldError('role'); as message) { <span class="field-error">{{ message }}</span> }
+            @else if (createForm.controls.role.touched && createForm.controls.role.invalid) {
+              <span class="field-error">Selecciona un rol.</span>
+            }
+            <button class="primary" type="submit">Crear usuario</button>
+          </fieldset>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="permissions-title">
+        <h2 id="permissions-title">Rol y módulos</h2>
+        @if (selected(); as user) {
+          <p><strong>{{ user.name }}</strong> · {{ user.login }}</p>
+          <fieldset class="role-editor" [disabled]="blocked() || owns(user)">
+            <label for="admin-selected-role">Rol</label>
+            <select id="admin-selected-role" [formControl]="role">
+              @for (option of roleOptions; track option) { <option [value]="option">{{ option }}</option> }
+            </select>
+            <button type="button" (click)="saveRole()"
+              [disabled]="blocked() || owns(user) || role.value === user.role">Cambiar rol</button>
+            @if (fieldError('role', 'edit'); as message) { <span class="field-error">{{ message }}</span> }
+          </fieldset>
+          @if (owns(user)) { <p class="secondary">Tu acceso administrativo está protegido.</p> }
+
+          <div class="heading module-heading">
+            <h3>Módulos por usuario</h3>
+            @if (modulesError()) {
+              <button type="button" (click)="reloadModules()" [disabled]="loadingModules()">Reintentar módulos</button>
+            }
+          </div>
+          @if (loadingModules()) { <p role="status">Consultando módulos…</p> }
+          @if (modulesError()) { <p class="error" role="alert">{{ modulesError() }}</p> }
+          @if (modules().length) {
+            <ul class="module-list">
+              @for (module of modules(); track module.code) {
+                @let assigned = user.modules.includes(module.code);
+                <li>
+                  <div><strong>{{ module.name }}</strong><span>{{ assigned ? 'Concedido' : 'Sin conceder' }}</span></div>
+                  <button type="button" (click)="toggleModule(module.code)"
+                    [attr.aria-label]="(assigned ? 'Retirar ' : 'Conceder ') + module.name"
+                    [disabled]="blocked() || (assigned && module.code === 'ADMINISTRACION' && owns(user))">
+                    {{ assigned ? 'Retirar' : 'Conceder' }}
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else if (!loadingModules() && !modulesError()) { <p>No hay módulos disponibles.</p> }
+        } @else { <p>Selecciona un usuario del listado para administrar su rol y sus módulos.</p> }
+      </section>
+    </div>
+  }
+</section>
