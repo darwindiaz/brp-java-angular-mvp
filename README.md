@@ -120,7 +120,51 @@ proxies de confianza que sanee los encabezados reenviados, o aplica el
 límite en el gateway. En despliegues multinodo se necesita un limitador
 compartido o un gateway.
 
+### API de radicación
+
+Usa el JWT de un usuario activo con rol `RADICADOR` y módulo
+`RADICACION`. Envía el token como `Authorization: Bearer <token>`.
+
+| Método y ruta | Operación |
+|---|---|
+| `POST /api/offers` | Recibe `brpCode` y `bidders`. Devuelve `201` con el número de radicación y el resumen calculado por el servidor. |
+| `POST /api/offers/discount-preview` | Recibe `brpCode` y `total`. Devuelve precio de referencia, importe, descuento e indicador de sobreprecio sin guardar una oferta. |
+| `GET /api/offers/mine` | Devuelve resúmenes de las ofertas propias, de la más reciente por número de radicación a la más antigua. |
+| `GET /api/offers/mine/{number}` | Devuelve el resumen, los oferentes y sus pagos. Una oferta inexistente o ajena devuelve `404`. |
+
+Ejemplo de cuerpo para radicar:
+
+```json
+{
+  "brpCode": "BRP-0001",
+  "bidders": [
+    {
+      "identificationType": "CC",
+      "identificationNumber": "123",
+      "name": "Oferente de prueba",
+      "percentage": 100.0000,
+      "payments": [
+        {"method": "CONTADO", "date": "2026-12-01", "amount": 160000000.00}
+      ]
+    }
+  ]
+}
+```
+
+`contact` y `lender` son opcionales. La financiadora solo aplica a un
+pago `PRESTAMO`. El servidor determina el radicador, el precio de referencia,
+el total, el descuento y el estado. El alta y la vista previa devuelven
+`409` si el BRP vigente no está disponible con un precio válido. El alta
+vuelve a consultar el catálogo aunque antes se haya pedido una vista previa.
+
 ## Pruebas de integración
+
+El cierre de la radicación (etapas 6.1 y 6.2) se verificó con
+`gradlew.bat clean build` en PostgreSQL 17.12 aislado. Pasaron las 110 pruebas
+sin fallos, errores ni omitidas. La etiqueta `postgres:17` del Compose puede
+resolver a otra revisión. Para reproducir el cierre, selecciona
+`postgres:17.12` en una sobreescritura de Compose y comprueba que
+`SHOW server_version_num` devuelve `170012` antes de ejecutar Gradle.
 
 Desde la raíz, levanta el PostgreSQL exclusivo de pruebas con
 `compose.test.yml`. Tiene su propio servicio, puerto local y volumen.

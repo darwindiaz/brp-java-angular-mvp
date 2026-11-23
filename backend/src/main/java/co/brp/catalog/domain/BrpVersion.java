@@ -37,6 +37,10 @@ public class BrpVersion {
     protected BrpVersion() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getCode() {
         return code;
     }
