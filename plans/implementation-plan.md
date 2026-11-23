@@ -275,6 +275,30 @@ persistencia y la infraestructura se mantienen intactos.
   pruebas unitarias Java de transiciones. El recorrido manual queda
   pendiente para la validación integral con usuarios de prueba.
 
+## Etapa 10.6 — Seguimiento en Angular
+
+- Ruta diferida `/seguimiento` para cuentas activas con módulo
+  `SEGUIMIENTO`. Las pestañas consultan `GET /api/follow-up/offers` y
+  `GET /api/follow-up/catalog`. El encabezado usa
+  `GET /api/follow-up/catalog/freshness`.
+- Los listados mantienen el alcance y el orden que aplica el servidor.
+  La API no declara parámetros de búsqueda, paginación ni filtros
+  adicionales. Los importes se presentan en formato colombiano sin
+  redondear y las fechas de oferta se muestran en UTC.
+- Pasaron el build de producción con TypeScript y plantillas estrictos
+  y nueve comprobaciones locales con servicios simulados. El recorrido
+  manual con los cuatro roles queda pendiente para la validación integral.
+- Tras un `403` de cualquier consulta, Seguimiento invalida los dos
+  listados y la frescura, cancela las consultas pendientes y bloquea
+  nuevas consultas en la vista sin cerrar la sesión. Siete comprobaciones
+  locales cubren revocación, respuestas tardías y los casos `401` y `500`.
+- Angular cancela las consultas pendientes al destruir la vista de
+  Seguimiento y descarta resultados ya encolados.
+- El decodificador conserva el literal decimal original cuando el
+  navegador lo proporciona. En caso contrario, rechaza la respuesta si
+  un importe o descuento tiene una magnitud de 100.000.000.000 o mayor,
+  para evitar pérdida silenciosa de precisión.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta
