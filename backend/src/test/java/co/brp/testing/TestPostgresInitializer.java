@@ -58,6 +58,7 @@ public final class TestPostgresInitializer implements ApplicationContextInitiali
             dataSource.setJdbcUrl(url);
             dataSource.setUsername(user);
             dataSource.setPassword(password);
+            dataSource.addDataSourceProperty("logServerErrorDetail", "false");
             return dataSource;
         }, definition -> definition.setDestroyMethodName("close"));
         context.registerBean("liquibase", SpringLiquibase.class, () -> {

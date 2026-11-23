@@ -178,6 +178,55 @@ análisis y escálala. Desde aprobación, devuélvela y comprueba que aparece
 en la bandeja del mismo analista. Escálala de nuevo y apruébala con un jefe
 distinto del analista asignado.
 
+### API de adjuntos
+
+| Método y ruta | Operación |
+|---|---|
+| `POST /api/offers/{number}/attachments` | Recibe una o más partes `files` en `multipart/form-data`. Devuelve `201` y los metadatos. |
+| `GET /api/offers/{number}/attachments` | Lista identificador, nombre, tipo, tamaño en bytes y fecha de carga. |
+| `GET /api/offers/{number}/attachments/{attachmentId}` | Descarga el contenido como archivo. Valida que el adjunto pertenezca a la oferta de la URL. |
+
+Los tres endpoints usan JWT y autorización vigente sobre la oferta. El
+radicador con `RADICACION` accede a sus ofertas. El analista con `ANALISIS`
+accede a las que tiene asignadas. El jefe con `APROBACION` accede a las
+escaladas. El administrador con `SEGUIMIENTO` accede al conjunto de ofertas.
+Para un radicador, una oferta ajena y una inexistente producen `404`.
+
+Se aceptan PDF, JPG, JPEG y PNG. El servidor valida extensión, MIME
+declarado, firma inicial y tamaño antes de guardar el lote. Devuelve
+`400` por archivo inválido y `413` si se excede un límite de tamaño.
+
+| Variable | Valor inicial |
+|---|---|
+| `BRP_ATTACHMENTS_DIRECTORY` | `./storage/offer-attachments`, relativo al directorio de ejecución |
+| `BRP_ATTACHMENTS_MAX_FILE_SIZE` | `10MB` (10 MiB por archivo) |
+| `BRP_ATTACHMENTS_MAX_REQUEST_SIZE` | `50MB` (50 MiB por solicitud, incluida la envoltura multipart) |
+
+Configura un directorio privado con permisos restringidos al proceso y
+fuera de cualquier raíz pública. Cada archivo se guarda con su UUID. El
+UUID es también la referencia relativa conservada en PostgreSQL. Los
+endpoints entregan metadatos y contenido, y la carpeta permanece privada.
+Incluye la carpeta y la base de datos en la copia operativa.
+
+```powershell
+$offerUrl = "http://127.0.0.1:8080/api/offers/$registrationNumber/attachments"
+curl.exe -H "Authorization: Bearer $accessToken" -F "files=@informe.pdf;type=application/pdf" -F "files=@foto.png;type=image/png" $offerUrl
+curl.exe -H "Authorization: Bearer $accessToken" $offerUrl
+curl.exe -H "Authorization: Bearer $accessToken" -o descarga.pdf "$offerUrl/$attachmentId"
+```
+
+Usa el número de radicación, el JWT autorizado y el UUID devuelto por el
+listado. Si la transacción revierte, el backend retira los archivos creados
+durante la solicitud. Si la limpieza falla o el resultado de la transacción
+es incierto, el log registra los UUID para conciliarlos con PostgreSQL.
+La carga no cambia la oferta. La inspección por firma no sustituye un
+análisis antimalware. La eliminación, la retención y las cuotas acumuladas
+quedan fuera de esta etapa.
+
+En despliegues con un PostgreSQL externo al Compose del proyecto, aplica
+`log_error_verbosity=terse` y `log_parameter_max_length_on_error=0` para
+evitar que los logs del servidor incluyan filas rechazadas o sus parámetros.
+
 ## Pruebas de integración
 
 El cierre de la radicación (etapas 6.1 y 6.2) se verificó con

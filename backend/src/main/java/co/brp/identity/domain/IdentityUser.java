@@ -27,6 +27,15 @@ public record IdentityUser(long id, String name, String login, Role role, boolea
         return active && role == Role.JEFE && modules.contains(Module.APROBACION);
     }
 
+    public boolean canAccessOfferAttachments() {
+        return switch (role) {
+            case RADICADOR -> canRegisterOffers();
+            case ANALISTA -> canAnalyzeOffers();
+            case JEFE -> canDecideOffers();
+            case ADMINISTRADOR -> active && modules.contains(Module.SEGUIMIENTO);
+        };
+    }
+
     public static String normalizeLogin(String login) {
         return login.strip().toLowerCase(Locale.ROOT);
     }

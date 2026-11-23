@@ -58,3 +58,10 @@ databaseChangeLog:
         - sqlFile:
             path: 007-offer-lifecycle.sql
             relativeToChangelogFile: true
+  - changeSet:
+      id: 008-offer-attachments
+      author: brp
+      changes:
+        - sqlFile:
+            path: 008-offer-attachments.sql
+            relativeToChangelogFile: true
