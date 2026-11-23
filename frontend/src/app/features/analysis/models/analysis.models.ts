@@ -1,27 +1,9 @@
+import type { WorkItem } from '../../../core/offers/offer-work-item';
+
+export type { WorkItem } from '../../../core/offers/offer-work-item';
+
 export type AnalysisAction = 'take' | 'escalate' | 'reject';
 export type AnalysisFilter = 'all' | 'pending' | 'assigned' | 'returned';
-export type OfferStatus = 'RADICADO' | 'EN_PROCESO' | 'ESCALADO' | 'APROBADO' | 'RECHAZADO' | 'DESISTIDO';
-
-export interface AnalysisOffer {
-  registrationNumber: string;
-  brpCode: string;
-  referencePrice: string;
-  total: string;
-  discount: string;
-  overprice: boolean;
-  status: OfferStatus;
-  createdAt: string;
-}
-
-export interface WorkItem {
-  offer: AnalysisOffer;
-  analystId: string | null;
-  version: string;
-  modifiedAt: string | null;
-  escalatedAt: string | null;
-  returnedAt: string | null;
-  closedAt: string | null;
-}
 
 export function matchesAnalysisFilter(item: WorkItem, filter: AnalysisFilter): boolean {
   switch (filter) {

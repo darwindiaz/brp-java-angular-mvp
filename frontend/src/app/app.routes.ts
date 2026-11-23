@@ -5,6 +5,7 @@ import { moduleRoutes } from './core/auth/navigation';
 const moduleComponents: Partial<Record<(typeof moduleRoutes)[number]['permission'], NonNullable<Routes[number]['loadComponent']>>> = {
   RADICACION: () => import('./features/registration/offer-registration.component').then(m => m.OfferRegistrationComponent),
   ANALISIS: () => import('./features/analysis/analysis-list/analysis-list.component').then(m => m.AnalysisListComponent),
+  APROBACION: () => import('./features/approval/approval-list.component').then(m => m.ApprovalListComponent),
 };
 
 export const routes: Routes = [
