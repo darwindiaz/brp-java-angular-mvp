@@ -78,6 +78,12 @@ La raíz abre `/inicio` con una sesión válida y `/login` cuando hace falta ide
 
 El menú y las rutas aplican las combinaciones de rol y módulo del [contrato de autenticación](docs/frontend-auth-contract.md). Las rutas de los módulos futuros indican que la interfaz funcional sigue pendiente. `/diagnostico` sigue disponible para comprobar conectividad.
 
+### Radicación desde Angular
+
+Inicia sesión como radicador con el módulo `RADICACION` y abre **Radicación**. Selecciona un bien del catálogo vigente, registra entre uno y cinco oferentes y añade entre uno y seis pagos por oferente. Puedes introducir decimales con coma o punto. El formulario valida los importes y participaciones sin redondearlos.
+
+**Consultar descuento** obtiene la vista previa del servidor. **Radicar oferta** envía los oferentes y pagos. La confirmación muestra el número de radicación y los valores definitivos devueltos por el backend. Si el BRP deja de estar disponible, actualiza el catálogo y selecciona un bien vigente.
+
 ## Identidad y aprovisionamiento
 
 Antes del primer arranque, genera el hash BCrypt de la contraseña inicial

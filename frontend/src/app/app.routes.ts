@@ -25,7 +25,9 @@ export const routes: Routes = [
         path: module.path,
         data: { title: module.label },
         canActivate: [requireModule(module)],
-        loadComponent: () => import('./shared/module-unavailable.component').then(m => m.ModuleUnavailableComponent),
+        loadComponent: module.permission === 'RADICACION'
+          ? () => import('./features/registration/offer-registration.component').then(m => m.OfferRegistrationComponent)
+          : () => import('./shared/module-unavailable.component').then(m => m.ModuleUnavailableComponent),
       })),
     ],
   },

@@ -184,6 +184,13 @@ omitidas.
 - Angular implementa login, recuperación de sesión con `GET /api/auth/me`, cierre local, expiración, interceptor y navegación protegida por rol y módulo. Las rutas de módulos muestran su estado pendiente de implementación.
 - Compilación de producción y prueba en Chrome de escritorio con Spring Boot y PostgreSQL aislado. Se comprobaron el acceso directo sin sesión, las credenciales inválidas, el menú de administrador, la recuperación al recargar, el acceso permitido y denegado, el cierre de sesión y el rechazo de tokens inválidos o expirados. El formulario se verificó sin desbordamiento a 375 px.
 
+## Etapa 10.3 — Radicación de ofertas en Angular
+
+- Interfaz disponible para el rol Radicador con módulo Radicación. Integra catálogo disponible, vista previa del descuento y alta de ofertas mediante los contratos existentes.
+- Valida los límites de oferentes y pagos, porcentajes con cuatro decimales, montos con dos decimales, identificación única y correspondencia exacta entre los pagos y la participación. El servidor calcula y devuelve los valores definitivos.
+- El build de producción y diez comprobaciones locales de aritmética y serialización pasaron. Las 64 pruebas seleccionadas de dominio, persistencia, API y catálogo de selección pasaron en PostgreSQL aislado. La radicación completa desde Chrome queda pendiente con una cuenta de pruebas autorizada para Radicación.
+- Los adjuntos y los demás módulos conservan su planificación independiente.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta
