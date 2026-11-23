@@ -1,0 +1,129 @@
+<section aria-labelledby="tracking-title">
+  <header class="heading">
+    <h1 id="tracking-title">Seguimiento</h1>
+    @let latest = freshness();
+    @switch (latest.status) {
+      @case ('ready') {
+        <p class="freshness">
+          @if (latest.data.latestIngestionDate; as date) {
+            Catálogo actualizado al <time [attr.datetime]="date">{{ calendarDate(date) }}</time>
+          } @else { Sin ingestas de catálogo registradas. }
+        </p>
+      }
+      @case ('loading') { <p class="freshness" role="status">Consultando la última ingesta…</p> }
+      @case ('error') {
+        <div class="freshness">
+          <p role="alert">Fecha de ingesta: {{ latest.message }}</p>
+          <button type="button" (click)="refreshFreshness()">Reintentar fecha</button>
+        </div>
+      }
+    }
+  </header>
+
+  @if (accessDenied()) {
+    <p class="error" role="alert">Tu cuenta no tiene permiso para consultar Seguimiento.</p>
+  }
+  <div class="tabs" role="tablist" aria-label="Consultas de seguimiento" [hidden]="accessDenied()">
+    <button #offerTab type="button" id="tracking-offer-tab" role="tab" aria-controls="tracking-offers-panel"
+      [attr.aria-selected]="tab() === 'offers'" [attr.tabindex]="tab() === 'offers' ? 0 : -1"
+      (click)="select('offers')" (keydown.arrowleft)="switchTab('catalog', catalogTab, $event)"
+      (keydown.arrowright)="switchTab('catalog', catalogTab, $event)">Ofertas</button>
+    <button #catalogTab type="button" id="tracking-catalog-tab" role="tab" aria-controls="tracking-catalog-panel"
+      [attr.aria-selected]="tab() === 'catalog'" [attr.tabindex]="tab() === 'catalog' ? 0 : -1"
+      (click)="select('catalog')" (keydown.arrowleft)="switchTab('offers', offerTab, $event)"
+      (keydown.arrowright)="switchTab('offers', offerTab, $event)">Catálogo BRP</button>
+  </div>
+
+  <section id="tracking-offers-panel" role="tabpanel" aria-labelledby="tracking-offer-tab" [hidden]="accessDenied() || tab() !== 'offers'">
+    @let offerState = offers();
+    <header class="panel-heading">
+      <h2>Ofertas</h2>
+      <button type="button" (click)="refreshOffers()" [disabled]="offerState.status === 'loading'">
+        {{ offerState.status === 'error' ? 'Reintentar consulta' : 'Actualizar ofertas' }}
+      </button>
+    </header>
+    @switch (offerState.status) {
+      @case ('loading') { <p role="status">Consultando ofertas…</p> }
+      @case ('error') { <p class="error" role="alert">{{ offerState.message }}</p> }
+      @case ('ready') {
+        @if (offerState.data.length) {
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de ofertas">
+            <table aria-label="Ofertas de seguimiento">
+              <thead><tr>
+                <th scope="col">Radicación</th><th scope="col">BRP</th><th scope="col">Total (COP)</th>
+                <th scope="col">Descuento</th><th scope="col">Estado</th><th scope="col">Analista</th>
+                <th scope="col">Fechas (UTC)</th>
+              </tr></thead>
+              <tbody>
+                @for (offer of offerState.data; track offer.registrationNumber) {
+                  <tr>
+                    <th scope="row">{{ offer.registrationNumber }}</th>
+                    <td>{{ offer.brpCode }}</td>
+                    <td class="number">$ {{ displayDecimal(offer.total, 2) }}</td>
+                    <td class="number">{{ displayDecimal(offer.discount) }} %</td>
+                    <td><span class="status" [attr.data-status]="offer.status">{{ offer.status.replaceAll('_', ' ').toLowerCase() }}</span></td>
+                    <td>{{ offer.analyst?.name ?? 'Sin asignar' }}</td>
+                    <td>
+                      <dl class="dates">
+                        <dt>Radicación</dt><dd>{{ (offer.createdAt | date:'dd/MM/yyyy HH:mm':'UTC') ?? '—' }}</dd>
+                        <dt>Modificación</dt><dd>{{ (offer.modifiedAt | date:'dd/MM/yyyy HH:mm':'UTC') ?? '—' }}</dd>
+                        <dt>Escalamiento</dt><dd>{{ (offer.escalatedAt | date:'dd/MM/yyyy HH:mm':'UTC') ?? '—' }}</dd>
+                        <dt>Devolución</dt><dd>{{ (offer.returnedAt | date:'dd/MM/yyyy HH:mm':'UTC') ?? '—' }}</dd>
+                        <dt>Cierre</dt><dd>{{ (offer.closedAt | date:'dd/MM/yyyy HH:mm':'UTC') ?? '—' }}</dd>
+                      </dl>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else { <p role="status">No hay ofertas para mostrar.</p> }
+      }
+    }
+  </section>
+
+  <section id="tracking-catalog-panel" role="tabpanel" aria-labelledby="tracking-catalog-tab" [hidden]="accessDenied() || tab() !== 'catalog'">
+    @let catalogState = catalog();
+    <header class="panel-heading">
+      <h2>Catálogo BRP</h2>
+      <button type="button" (click)="refreshCatalog(); refreshFreshness()" [disabled]="catalogState.status === 'loading'">
+        {{ catalogState.status === 'error' ? 'Reintentar consulta' : 'Actualizar catálogo' }}
+      </button>
+    </header>
+    @switch (catalogState.status) {
+      @case ('loading') { <p role="status">Consultando catálogo…</p> }
+      @case ('error') { <p class="error" role="alert">{{ catalogState.message }}</p> }
+      @case ('ready') {
+        @if (catalogState.data.length) {
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de catálogo BRP">
+            <table aria-label="Bienes recibidos en pago">
+              <thead><tr>
+                <th scope="col">Código BRP</th><th scope="col">Bien</th><th scope="col">Ubicación</th>
+                <th scope="col">Estado</th><th scope="col">Precio de referencia (COP)</th><th scope="col">Ingesta</th>
+              </tr></thead>
+              <tbody>
+                @for (item of catalogState.data; track item.code) {
+                  <tr>
+                    <th scope="row">{{ item.code }}</th>
+                    <td>
+                      <strong class="asset-type">{{ item.assetType.toLowerCase() }}</strong>
+                      @if (item.description) { <div>{{ item.description }}</div> }
+                    </td>
+                    <td>
+                      @if (item.location.municipality) { <div>{{ item.location.municipality }}</div> }
+                      @if (item.location.department) { <div>{{ item.location.department }}</div> }
+                      @if (!item.location.municipality && !item.location.department) { — }
+                    </td>
+                    <td><span class="status" [attr.data-status]="item.status">{{ item.status.replaceAll('_', ' ').toLowerCase() }}</span></td>
+                    <td class="number">{{ item.referencePrice === null ? '—' : '$ ' + displayDecimal(item.referencePrice, 2) }}</td>
+                    <td><time [attr.datetime]="item.ingestionDate">{{ calendarDate(item.ingestionDate) }}</time></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else { <p role="status">No hay bienes para mostrar.</p> }
+      }
+    }
+  </section>
+</section>

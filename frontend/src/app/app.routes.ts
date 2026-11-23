@@ -6,6 +6,7 @@ const moduleComponents: Partial<Record<(typeof moduleRoutes)[number]['permission
   RADICACION: () => import('./features/registration/offer-registration.component').then(m => m.OfferRegistrationComponent),
   ANALISIS: () => import('./features/analysis/analysis-list/analysis-list.component').then(m => m.AnalysisListComponent),
   APROBACION: () => import('./features/approval/approval-list.component').then(m => m.ApprovalListComponent),
+  SEGUIMIENTO: () => import('./features/tracking/tracking.component').then(m => m.TrackingComponent),
 };
 
 export const routes: Routes = [

@@ -307,6 +307,21 @@ Analistas, jefes y administradores con el módulo ven todas las versiones
 vigentes, incluidos bienes sin precio. La fecha de frescura es global
 para todos los roles.
 
+### Seguimiento desde Angular
+
+Abre **Seguimiento** con una cuenta activa que tenga el módulo
+`SEGUIMIENTO`. La pestaña **Ofertas** presenta la trazabilidad en UTC y
+la pestaña **Catálogo BRP** muestra los bienes vigentes, su estado y el
+precio cuando existe. El encabezado muestra la última ingesta global.
+La interfaz conserva el alcance y el orden del servidor. Los endpoints
+de listado carecen de parámetros de búsqueda, paginación y filtros
+adicionales.
+
+Seguimiento conserva el literal decimal original del JSON cuando el
+navegador lo proporciona. En los demás navegadores, rechaza la respuesta
+si algún importe o descuento tiene una magnitud de 100.000.000.000 o
+mayor. Este límite conservador evita mostrar cifras redondeadas sin aviso.
+
 ## Pruebas de integración
 
 El cierre de la radicación (etapas 6.1 y 6.2) se verificó con
