@@ -1,0 +1,121 @@
+<h1>Radicación de ofertas</h1>
+@if (registered(); as offer) {
+  <section class="panel" role="status">
+    <h2>Oferta radicada</h2>
+    <dl>
+      <dt>Número de radicación</dt><dd>{{ offer.registrationNumber }}</dd>
+      <dt>BRP</dt><dd>{{ offer.brpCode }}</dd>
+      <dt>Estado</dt><dd>{{ offer.status }}</dd>
+      <dt>Total</dt><dd>{{ offer.total }}</dd>
+      <dt>Precio de referencia</dt><dd>{{ offer.referencePrice }}</dd>
+      <dt>Descuento</dt><dd>{{ offer.discount }} %</dd>
+      <dt>Fecha de radicación</dt><dd><time [attr.datetime]="offer.createdAt">{{ offer.createdAt }}</time></dd>
+    </dl>
+    @if (offer.overprice) { <p>La oferta supera el precio de referencia.</p> }
+    <button type="button" (click)="newOffer()">Radicar otra oferta</button>
+  </section>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="register()" novalidate [attr.aria-busy]="!!busy()">
+    <fieldset class="form-body" [disabled]="!!busy()">
+      <section class="panel" aria-labelledby="asset-title">
+        <div class="section-heading">
+          <h2 id="asset-title">Bien disponible</h2>
+          <button type="button" (click)="loadCatalog()" [disabled]="loadingCatalog()">Actualizar catálogo</button>
+        </div>
+        @if (loadingCatalog()) { <p role="status">Cargando catálogo…</p> }
+        @if (catalogError()) { <p role="alert" class="error">{{ catalogError() }}</p> }
+        @if (!loadingCatalog() && !catalogError() && !catalog().length) {
+          <p role="status">No hay bienes disponibles para radicar.</p>
+        }
+        <label>Selecciona un BRP
+          <select formControlName="brpCode">
+            <option value="">Seleccionar</option>
+            @for (item of catalog(); track item.code) {
+              <option [value]="item.code">{{ item.code }} · {{ item.description || item.assetType }}</option>
+            }
+          </select>
+        </label>
+        @if (selected(); as item) {
+          <dl>
+            <dt>Tipo</dt><dd>{{ item.assetType }}</dd>
+            @if (item.description) { <dt>Descripción</dt><dd>{{ item.description }}</dd> }
+            @if (item.location.department || item.location.municipality) {
+              <dt>Ubicación</dt><dd>{{ item.location.municipality }} {{ item.location.department }}</dd>
+            }
+            <dt>Precio de referencia</dt><dd>{{ item.referencePrice }}</dd>
+          </dl>
+        }
+      </section>
+
+      <section class="panel" aria-labelledby="bidder-title">
+        <div class="section-heading">
+          <h2 id="bidder-title">Oferentes</h2>
+          <button type="button" (click)="addBidder()" [disabled]="bidders.length >= 5">Agregar oferente</button>
+        </div>
+        <div formArrayName="bidders">
+          @for (bidder of bidders.controls; track bidder; let i = $index) {
+            <fieldset [formGroupName]="i" class="bidder">
+              <legend>Oferente {{ i + 1 }}</legend>
+              <div class="fields">
+                <label>Tipo de identificación
+                  <select formControlName="identificationType"><option value="CC">CC</option><option value="NIT">NIT</option></select>
+                </label>
+                <label>Número de identificación<input formControlName="identificationNumber" maxlength="80" required></label>
+                <label>Nombre<input formControlName="name" maxlength="200" required></label>
+                <label>Contacto (opcional)<input formControlName="contact" maxlength="254"></label>
+                <label>Participación (%)<input formControlName="percentage" inputmode="decimal" placeholder="0,0000" required></label>
+              </div>
+              <div formArrayName="payments" class="payments">
+                @for (payment of bidder.controls.payments.controls; track payment; let j = $index) {
+                  <fieldset [formGroupName]="j" class="payment">
+                    <legend>Pago {{ j + 1 }}</legend>
+                    <div class="fields">
+                      <label>Modalidad
+                        <select formControlName="method"><option value="CONTADO">Contado</option><option value="PRESTAMO">Préstamo</option></select>
+                      </label>
+                      <label>Fecha<input type="date" formControlName="date" required></label>
+                      <label>Importe<input formControlName="amount" inputmode="decimal" placeholder="0,00" required></label>
+                      @if (payment.controls.method.value === 'PRESTAMO') {
+                        <label>Financiadora (opcional)<input formControlName="lender" maxlength="200"></label>
+                      }
+                    </div>
+                    @if (bidder.controls.payments.length > 1) {
+                      <button type="button" (click)="removePayment(i, j)">Quitar pago {{ j + 1 }}</button>
+                    }
+                  </fieldset>
+                }
+              </div>
+              <div class="actions">
+                <button type="button" (click)="addPayment(i)" [disabled]="bidder.controls.payments.length >= 6">Agregar pago</button>
+                @if (bidders.length > 1) { <button type="button" (click)="removeBidder(i)">Quitar oferente {{ i + 1 }}</button> }
+              </div>
+            </fieldset>
+          }
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="financial-title">
+        <h2 id="financial-title">Resumen financiero</h2>
+        <p>Total de los pagos <strong>{{ total() }}</strong></p>
+        @if (submitted() && finances().issues.length) {
+          <ul class="error">
+            @for (issue of finances().issues; track issue) { <li>{{ issue }}</li> }
+          </ul>
+        }
+        @if (preview(); as result) {
+          <p role="status">Descuento estimado <strong>{{ result.discount }} %</strong> · Precio de referencia {{ result.referencePrice }}</p>
+          @if (result.overprice) { <p>La oferta supera el precio de referencia.</p> }
+        }
+        @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+        <div class="actions">
+          <button type="button" (click)="requestPreview()" [disabled]="!selected() || loadingCatalog()">
+            {{ busy() === 'preview' ? 'Consultando…' : 'Consultar descuento' }}
+          </button>
+          <button class="primary" type="submit" [disabled]="!selected() || loadingCatalog()">
+            {{ busy() === 'register' ? 'Radicando…' : 'Radicar oferta' }}
+          </button>
+        </div>
+      </section>
+    </fieldset>
+  </form>
+}
