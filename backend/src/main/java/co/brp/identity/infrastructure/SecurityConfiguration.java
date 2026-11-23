@@ -20,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,6 +42,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration(proxyBeanMethods = false)
@@ -55,6 +57,9 @@ class SecurityConfiguration {
         var bearer = new BearerTokenAuthenticationConverter();
         var health = EndpointRequest.to(HealthEndpoint.class);
         var login = PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/api/auth/login");
+        AuthorizationManager<RequestAuthorizationContext> offers = (authentication, request) ->
+                new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
+                        && user.canRegisterOffers());
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -69,6 +74,8 @@ class SecurityConfiguration {
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(health, login).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/offers", "/api/offers/discount-preview").access(offers)
+                        .requestMatchers(HttpMethod.GET, "/api/offers/mine", "/api/offers/mine/{number}").access(offers)
                         .requestMatchers("/api/admin/**").access((authentication, request) ->
                                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
                                         && user.canAdminister()))

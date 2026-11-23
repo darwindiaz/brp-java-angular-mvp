@@ -44,3 +44,10 @@ databaseChangeLog:
       changes:
         - customChange:
             class: co.brp.identity.infrastructure.BootstrapAdministrator
+  - changeSet:
+      id: 006-create-offers
+      author: brp
+      changes:
+        - sqlFile:
+            path: 006-create-offers.sql
+            relativeToChangelogFile: true

@@ -1,0 +1,55 @@
+package co.brp.offers.presentation;
+
+import java.util.NoSuchElementException;
+
+import co.brp.offers.application.OfferRegistration.BrpUnavailable;
+import co.brp.offers.domain.Offer.InvalidOffer;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+@RestControllerAdvice(assignableTypes = OfferController.class)
+class OfferErrorHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    ProblemDetail validation(MethodArgumentNotValidException exception) {
+        var problem = invalidInput();
+        problem.setProperty("errors", exception.getBindingResult().getFieldErrors().stream()
+                .map(error -> new FieldViolation(error.getField(), "Valor inválido.")).distinct().toList());
+        return problem;
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
+            IllegalArgumentException.class})
+    ProblemDetail invalidInput() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "La solicitud contiene datos inválidos.");
+    }
+
+    @ExceptionHandler(InvalidOffer.class)
+    ProblemDetail invalidOffer(InvalidOffer exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    ProblemDetail missing() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "No existe el recurso solicitado.");
+    }
+
+    @ExceptionHandler(BrpUnavailable.class)
+    ProblemDetail unavailable() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "El BRP vigente no está disponible con un precio válido.");
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ProblemDetail concurrentChange() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "El recurso se modificó durante la operación.");
+    }
+
+    private record FieldViolation(String field, String message) {
+    }
+}
