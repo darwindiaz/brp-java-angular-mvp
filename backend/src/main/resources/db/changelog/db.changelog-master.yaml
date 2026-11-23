@@ -30,3 +30,17 @@ databaseChangeLog:
         - sqlFile:
             path: 003-reject-blank-brp-identifiers.sql
             relativeToChangelogFile: true
+  - changeSet:
+      id: 004-create-identity
+      author: brp
+      changes:
+        - sqlFile:
+            path: 004-create-identity.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 005-bootstrap-administrator
+      author: brp
+      runInTransaction: true
+      changes:
+        - customChange:
+            class: co.brp.identity.infrastructure.BootstrapAdministrator

@@ -39,9 +39,8 @@ que Gradle empaqueta como recurso. La consulta interna selecciona primero
 la fila vigente por código y después aplica el filtro de disponibilidad.
 En PostgreSQL 17 se verificaron los 100 registros contra el CSV,
 56 disponibles, 10 sin precio y la última ingesta del 17 de noviembre de
-2026. La siembra de usuarios y módulos de la etapa 3 y las etapas
-posteriores siguen pendientes. La publicación HTTP requiere los
-controles de acceso de la etapa 4.
+2026. La publicación HTTP del catálogo sigue pendiente y debe aplicar
+los controles de acceso de la etapa 4.
 
 La migración 003 rechaza códigos, matrículas y placas vacíos o compuestos
 solo por espacios y tabulaciones. Se verificó en PostgreSQL que matrícula
@@ -57,6 +56,24 @@ configurar las variables del README. Desde `backend`, `gradlew.bat clean build`
 verifica el catálogo. Las 34 pruebas pasaron con JPA y Liquibase conectados
 al mismo `DataSource`. Se comprobó el rechazo previo de JNDI y la falta de
 acceso del rol de pruebas a `dev` y a las demás bases del servidor de pruebas.
+
+## Estado del incremento de identidad
+
+La parte de identidad de las etapas 3 a 5 comprende esquema y módulos,
+administrador inicial, login, JWT, consulta de sesión y administración de
+usuarios con auditoría y protección transaccional del último administrador.
+El aprovisionamiento rechazó la falta del hash sin dejar usuario, permiso
+ni auditoría parciales. La suite de 42 pruebas pasó en PostgreSQL aislado.
+Las cuentas adicionales de demostración se pueden crear mediante la API
+administrativa. La exposición del catálogo y la autorización por contexto
+de ofertas siguen pendientes en sus respectivos incrementos.
+
+La revisión de identidad añadió errores de validación sanitizados,
+exclusión del Bearer en rutas públicas, vigencia máxima de JWT en el
+decodificador y límites de login por IP e instancia. La última validación con
+`gradlew.bat clean build` en PostgreSQL de pruebas aislado registró
+51 pruebas exitosas, 0 fallos, 0 errores y 0 omitidas, con los checksums
+de las cinco migraciones intactos.
 
 ## Hallazgos de auditoría pendientes
 
