@@ -178,6 +178,12 @@ omitidas.
 - La imagen de Angular se construyó con `npm ci` y Nginx sirvió `/diagnostico`. `docker compose ps` confirmó que solo el frontend publicó un puerto. Esta comprobación usó una imagen temporal de Spring Boot con el JAR compilado en Windows. El build estándar de la imagen del backend quedó pendiente tras un fallo TLS en Maven Central y dos reintentos interrumpidos por timeout al descargar Gradle.
 - La autenticación y las pantallas de negocio corresponden a entregas posteriores de la fase 10.
 
+## Etapa 10.2 — Autenticación, sesión y navegación
+
+- Inspección backend realizada. El [contrato para Angular](../docs/frontend-auth-contract.md) describe login, usuario autenticado, permisos, expiración y manejo HTTP.
+- Angular implementa login, recuperación de sesión con `GET /api/auth/me`, cierre local, expiración, interceptor y navegación protegida por rol y módulo. Las rutas de módulos muestran su estado pendiente de implementación.
+- Compilación de producción y prueba en Chrome de escritorio con Spring Boot y PostgreSQL aislado. Se comprobaron el acceso directo sin sesión, las credenciales inválidas, el menú de administrador, la recuperación al recargar, el acceso permitido y denegado, el cierre de sesión y el rechazo de tokens inválidos o expirados. El formulario se verificó sin desbordamiento a 375 px.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta

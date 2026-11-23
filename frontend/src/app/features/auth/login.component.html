@@ -1,0 +1,28 @@
+<main class="login">
+  <section class="identity" aria-label="Bienes Recibidos en Pago">
+    <strong>BRP</strong>
+    <p>Bienes Recibidos<br>en Pago</p>
+  </section>
+  <section class="form-panel" aria-labelledby="login-title">
+    <form [formGroup]="form" (ngSubmit)="submit()" [attr.aria-busy]="busy()">
+      <h1 id="login-title">Iniciar sesión</h1>
+      @if (auth.sessionExpired()) {
+        <p class="notice" role="status">Tu sesión terminó. Vuelve a iniciar sesión.</p>
+      }
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+      <label for="login">Usuario</label>
+      <input id="login" formControlName="login" autocomplete="username" maxlength="100" required
+        [attr.aria-invalid]="form.controls.login.touched && form.controls.login.invalid">
+      @if (form.controls.login.touched && form.controls.login.invalid) {
+        <small>Ingresa un usuario válido.</small>
+      }
+      <label for="password">Contraseña</label>
+      <input id="password" type="password" formControlName="password" autocomplete="current-password" maxlength="72" required
+        [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid">
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small>Ingresa una contraseña válida.</small>
+      }
+      <button type="submit" [disabled]="busy()">{{ busy() ? 'Ingresando…' : 'Ingresar' }}</button>
+    </form>
+  </section>
+</main>
