@@ -137,6 +137,38 @@ error de inserción y comprueba que se conserva el HTTP 500, se retiran
 los archivos nuevos y los logs no incluyen el nombre ni los identificadores
 de la oferta.
 
+## Etapa 9 — Seguimiento de ofertas
+
+Primera entrega implementada y verificada. El listado y el detalle
+requieren el módulo Seguimiento y aplican el alcance en PostgreSQL.
+La proyección de lectura conserva el descuento histórico y las fechas
+del flujo. El [README](../README.md#api-de-seguimiento-de-ofertas)
+documenta el contrato.
+
+`gradlew.bat clean build` pasó en PostgreSQL 17.12 aislado
+(`server_version_num = 170012`). Pasaron 147 pruebas, incluidas 8 nuevas
+de integración, con 0 fallos, 0 errores y 0 omitidas.
+
+La segunda entrega expone el catálogo vigente y la frescura global bajo
+el módulo Seguimiento. Reutiliza la consulta de última versión por código
+y restringe al radicador a las versiones vigentes disponibles. La API de
+frescura devuelve `null` cuando no hay ingestas.
+
+La suite completa pasó con PostgreSQL 17.12 aislado mediante
+`gradlew.bat clean build`. Se ejecutaron 153 pruebas, incluidas seis nuevas
+de integración para catálogo y frescura, con 0 fallos, 0 errores y 0
+omitidas.
+
+### Etapa 9.1 — Catálogo de selección para radicación
+
+`GET /api/offers/catalog` permite al radicador con `RADICACION` consultar
+los BRP vigentes disponibles. Reutiliza la consulta del catálogo existente.
+La pestaña de seguimiento conserva `SEGUIMIENTO` como permiso independiente.
+
+`gradlew.bat clean build` pasó en PostgreSQL 17.12 aislado con 158 pruebas
+exitosas, incluidas cinco nuevas del selector, y 0 fallos, 0 errores y 0
+omitidas.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta

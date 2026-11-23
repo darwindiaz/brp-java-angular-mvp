@@ -127,10 +127,15 @@ Usa el JWT de un usuario activo con rol `RADICADOR` y módulo
 
 | Método y ruta | Operación |
 |---|---|
+| `GET /api/offers/catalog` | Lista BRP disponibles para seleccionar al radicar, ordenados por código. Cada elemento incluye código, tipo, descripción, ubicación y precio de referencia vigente. |
 | `POST /api/offers` | Recibe `brpCode` y `bidders`. Devuelve `201` con el número de radicación y el resumen calculado por el servidor. |
 | `POST /api/offers/discount-preview` | Recibe `brpCode` y `total`. Devuelve precio de referencia, importe, descuento e indicador de sobreprecio sin guardar una oferta. |
 | `GET /api/offers/mine` | Devuelve resúmenes de las ofertas propias, de la más reciente por número de radicación a la más antigua. |
 | `GET /api/offers/mine/{number}` | Devuelve el resumen, los oferentes y sus pagos. Una oferta inexistente o ajena devuelve `404`. |
+
+El catálogo de selección usa `RADICACION` y muestra solo bienes cuya
+última versión está `DISPONIBLE`. La pestaña de catálogo de seguimiento
+usa `GET /api/follow-up/catalog` y exige `SEGUIMIENTO`.
 
 Ejemplo de cuerpo para radicar:
 
@@ -226,6 +231,36 @@ quedan fuera de esta etapa.
 En despliegues con un PostgreSQL externo al Compose del proyecto, aplica
 `log_error_verbosity=terse` y `log_parameter_max_length_on_error=0` para
 evitar que los logs del servidor incluyan filas rechazadas o sus parámetros.
+
+### API de seguimiento de ofertas
+
+| Método y ruta | Operación |
+|---|---|
+| `GET /api/follow-up/offers` | Lista las ofertas visibles para el usuario, ordenadas por número de radicación descendente. |
+| `GET /api/follow-up/offers/{number}` | Devuelve la misma proyección para una oferta visible. Para un radicador, una oferta ajena y una inexistente reciben `404`. |
+
+Ambas rutas requieren JWT de una cuenta activa con módulo `SEGUIMIENTO`.
+El radicador ve sus propias ofertas. Analistas, jefes y administradores
+con el módulo ven todas. La respuesta contiene el número de radicación,
+el código BRP, el total, el descuento histórico, el estado, el analista
+asignado y las fechas de trazabilidad. `analyst` contiene `id` y `name`
+cuando hay asignación. Las fechas se devuelven como instantes UTC y los
+eventos que aún no ocurrieron se representan con `null`.
+
+### API de catálogo de seguimiento
+
+Ambas rutas requieren JWT de una cuenta activa con el módulo
+`SEGUIMIENTO`.
+
+| Método y ruta | Respuesta |
+|---|---|
+| `GET /api/follow-up/catalog` | Devuelve una versión vigente por código, ordenada por código ascendente. Cada elemento contiene `code`, `assetType`, `description`, `location` con `department` y `municipality`, `status`, `referencePrice` e `ingestionDate`. |
+| `GET /api/follow-up/catalog/freshness` | Devuelve `latestIngestionDate` en formato `YYYY-MM-DD`, o `null` si no hay ingestas. |
+
+El radicador solo ve bienes cuya última versión esté `DISPONIBLE`.
+Analistas, jefes y administradores con el módulo ven todas las versiones
+vigentes, incluidos bienes sin precio. La fecha de frescura es global
+para todos los roles.
 
 ## Pruebas de integración
 

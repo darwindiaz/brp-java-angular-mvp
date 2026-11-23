@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice(assignableTypes = {OfferController.class, OfferLifecycleController.class,
-        OfferAttachmentController.class})
+        OfferAttachmentController.class, OfferFollowUpController.class})
 class OfferErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
