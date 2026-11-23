@@ -84,6 +84,10 @@ Inicia sesión como radicador con el módulo `RADICACION` y abre **Radicación**
 
 **Consultar descuento** obtiene la vista previa del servidor. **Radicar oferta** envía los oferentes y pagos. La confirmación muestra el número de radicación y los valores definitivos devueltos por el backend. Si el BRP deja de estar disponible, actualiza el catálogo y selecciona un bien vigente.
 
+### Análisis desde Angular
+
+Inicia sesión como analista con el módulo `ANALISIS` y abre **Análisis**. La bandeja distingue las ofertas pendientes por tomar, las asignadas al usuario y las devueltas por el jefe. Tras tomar una oferta, puedes escalarla o rechazarla con confirmación. Si otra operación cambia la oferta, la bandeja se actualiza y puedes decidir de nuevo con la versión vigente.
+
 ## Identidad y aprovisionamiento
 
 Antes del primer arranque, genera el hash BCrypt de la contraseña inicial
