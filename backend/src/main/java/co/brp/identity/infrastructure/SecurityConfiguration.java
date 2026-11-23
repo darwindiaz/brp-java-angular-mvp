@@ -66,6 +66,9 @@ class SecurityConfiguration {
         AuthorizationManager<RequestAuthorizationContext> approval = (authentication, request) ->
                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
                         && user.canDecideOffers());
+        AuthorizationManager<RequestAuthorizationContext> attachments = (authentication, request) ->
+                new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
+                        && user.canAccessOfferAttachments());
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -86,6 +89,9 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/offers/analysis/{number}/{action}").access(analysis)
                         .requestMatchers(HttpMethod.GET, "/api/offers/approval").access(approval)
                         .requestMatchers(HttpMethod.POST, "/api/offers/approval/{number}/{action}").access(approval)
+                        .requestMatchers(HttpMethod.POST, "/api/offers/{number}/attachments").access(attachments)
+                        .requestMatchers(HttpMethod.GET, "/api/offers/{number}/attachments",
+                                "/api/offers/{number}/attachments/{attachmentId}").access(attachments)
                         .requestMatchers("/api/admin/**").access((authentication, request) ->
                                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
                                         && user.canAdminister()))

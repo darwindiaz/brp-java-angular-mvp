@@ -119,6 +119,24 @@ Compose (`server_version_num = 170012`). Resultado de la suite completa:
 0 fallos, 0 errores y 0 omitidas. Se comprobó una toma concurrente por HTTP
 y el rechazo de una escritura sobre una versión leída por dos transacciones.
 
+## Etapa 8 — Gestión de adjuntos
+
+Implementada y verificada. La migración 008 guarda metadatos de adjuntos
+en PostgreSQL con una FK a la oferta. La API permite carga múltiple,
+listado y descarga por UUID con autorización sobre la oferta. Los archivos
+se guardan en disco privado configurable. Una reversión de la transacción
+retira los archivos nuevos y conserva la oferta. El contrato y los
+límites de carga están documentados en el [README](../README.md#api-de-adjuntos).
+
+`gradlew.bat clean build` pasó en PostgreSQL 17.12 aislado
+(`server_version_num = 170012`). Se ejecutaron 139 pruebas, incluidas
+9 unitarias y 12 de integración nuevas, con 0 fallos, 0 errores y
+0 omitidas. Se verificaron la reversión del lote y el registro por UUID
+cuando falla la compensación. La regresión de privacidad fuerza un
+error de inserción y comprueba que se conserva el HTTP 500, se retiran
+los archivos nuevos y los logs no incluyen el nombre ni los identificadores
+de la oferta.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta
@@ -128,7 +146,11 @@ y el rechazo de una escritura sobre una versión leída por dos transacciones.
 - Etapa 6, deuda aceptada para el cierre del proyecto: rechazar caracteres
   NUL en entradas de radicación y cubrir el rollback ante un fallo intermedio
   durante la escritura del agregado.
-- Etapa 8: confirmar los límites de adjuntos y diseñar la compensación de fallos de carga.
+- Etapa 8: la validación identifica el formato mediante firma. Quedan
+  como deuda no bloqueante la verificación automática de que el directorio
+  no esté expuesto públicamente y las pruebas de un resultado indeterminado
+  durante el commit. Las cuotas acumuladas, la eliminación y la retención
+  quedan pendientes de definición.
 - Etapas 9 a 12: comprobar los cuatro roles, ambas pestañas, frescura,
   acción de ofertar oculta, administración y vista previa. Verificar
   arranque desde cero y contenido del README, incluidas las ocho respuestas.

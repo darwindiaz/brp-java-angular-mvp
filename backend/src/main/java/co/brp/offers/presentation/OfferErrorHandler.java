@@ -3,6 +3,8 @@ package co.brp.offers.presentation;
 import java.util.NoSuchElementException;
 
 import co.brp.offers.application.OfferRegistration.BrpUnavailable;
+import co.brp.offers.application.OfferAttachments.StorageFailure;
+import co.brp.offers.application.OfferAttachments.TooLarge;
 import co.brp.offers.domain.Offer.ForbiddenAction;
 import co.brp.offers.domain.Offer.InvalidOffer;
 import co.brp.offers.domain.Offer.TransitionConflict;
@@ -14,8 +16,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-@RestControllerAdvice(assignableTypes = {OfferController.class, OfferLifecycleController.class})
+@RestControllerAdvice(assignableTypes = {OfferController.class, OfferLifecycleController.class,
+        OfferAttachmentController.class})
 class OfferErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -27,9 +32,19 @@ class OfferErrorHandler {
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
-            IllegalArgumentException.class})
+            MissingServletRequestPartException.class, IllegalArgumentException.class})
     ProblemDetail invalidInput() {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "La solicitud contiene datos inválidos.");
+    }
+
+    @ExceptionHandler({TooLarge.class, MaxUploadSizeExceededException.class})
+    ProblemDetail attachmentTooLarge() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONTENT_TOO_LARGE, "La carga supera el tamaño permitido.");
+    }
+
+    @ExceptionHandler(StorageFailure.class)
+    ProblemDetail attachmentStorageFailure() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo acceder al adjunto.");
     }
 
     @ExceptionHandler(InvalidOffer.class)
