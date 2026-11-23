@@ -110,6 +110,20 @@ changeset 005. Cambiar esa variable después no cambia la contraseña. Conserva
 la clave JWT fuera del repositorio y reutiliza la misma en reinicios del
 ambiente si quieres conservar la validez de los JWT emitidos.
 
+### Administración desde Angular
+
+Inicia sesión con una cuenta activa de rol `ADMINISTRADOR` y módulo
+`ADMINISTRACION`. Abre **Administración**, completa **Crear usuario** con
+el nombre, login, contraseña inicial y rol, y selecciona la cuenta en el
+listado. Las cuentas nuevas nacen activas y sin módulos. Concede o retira
+cada permiso desde **Rol y módulos**. **Cambiar rol** modifica el rol sin
+asignar módulos.
+
+Para el recorrido manual, crea un radicador con **Radicación** y
+**Seguimiento**, un analista con **Análisis** y **Seguimiento**, y un jefe
+con **Aprobación** y **Seguimiento**. Usa contraseñas de prueba elegidas
+para ese entorno.
+
 ### API de identidad
 
 | Método y ruta | Operación |
