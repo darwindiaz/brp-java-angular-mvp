@@ -32,4 +32,11 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    doNotTrackState('Las pruebas de integración dependen de una base PostgreSQL externa')
+}
+
+tasks.named('processResources') {
+    from('../docs/source/brp_ejemplo.csv') {
+        into 'db/changelog/data'
+    }
 }

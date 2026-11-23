@@ -1,1 +1,32 @@
-databaseChangeLog: []
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-brp-catalog
+      author: brp
+      changes:
+        - sqlFile:
+            path: 001-create-brp-catalog.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 002-load-brp-catalog
+      author: brp
+      runInTransaction: true
+      changes:
+        - sqlFile:
+            path: 002-stage-brp-csv.sql
+            relativeToChangelogFile: true
+        - loadData:
+            file: data/brp_ejemplo.csv
+            relativeToChangelogFile: true
+            tableName: brp_csv_stage
+            encoding: UTF-8
+            usePreparedStatements: true
+        - sqlFile:
+            path: 002-load-brp-catalog.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 003-reject-blank-brp-identifiers
+      author: brp
+      changes:
+        - sqlFile:
+            path: 003-reject-blank-brp-identifiers.sql
+            relativeToChangelogFile: true

@@ -29,8 +29,34 @@ Las etapas 1 y 2 están implementadas y verificadas en
 Con Java 25, `gradlew.bat clean build` compiló el backend y pasó las tres
 pruebas de integración contra el contenedor. Spring Boot arrancó, la
 consulta JDBC llegó a PostgreSQL y la prueba HTTP verificó el estado
-`UP` y el bloqueo de otros endpoints de gestión. Liquibase mantiene el
-changelog vacío. La etapa 3 y las posteriores siguen pendientes.
+`UP` y el bloqueo de otros endpoints de gestión.
+
+## Estado del incremento de catálogo
+
+La parte de catálogo de la etapa 3 está implementada y verificada en
+`feature/brp-catalog`. Liquibase crea el esquema y carga el CSV original
+que Gradle empaqueta como recurso. La consulta interna selecciona primero
+la fila vigente por código y después aplica el filtro de disponibilidad.
+En PostgreSQL 17 se verificaron los 100 registros contra el CSV,
+56 disponibles, 10 sin precio y la última ingesta del 17 de noviembre de
+2026. La siembra de usuarios y módulos de la etapa 3 y las etapas
+posteriores siguen pendientes. La publicación HTTP requiere los
+controles de acceso de la etapa 4.
+
+La migración 003 rechaza códigos, matrículas y placas vacíos o compuestos
+solo por espacios y tabulaciones. Se verificó en PostgreSQL que matrícula
+y placa mantienen los nulos permitidos por tipo y que las llaves y la
+carga original conservan su comportamiento.
+
+Las pruebas de integración usan el perfil `test` y requieren una conexión
+PostgreSQL explícita a una base exclusiva. Se verificó que la ausencia de
+la URL y una URL de desarrollo se rechazan antes de iniciar Liquibase.
+La instancia dedicada se levanta desde la raíz con
+`docker compose -f compose.test.yml up -d --wait postgres-test`, después de
+configurar las variables del README. Desde `backend`, `gradlew.bat clean build`
+verifica el catálogo. Las 34 pruebas pasaron con JPA y Liquibase conectados
+al mismo `DataSource`. Se comprobó el rechazo previo de JNDI y la falta de
+acceso del rol de pruebas a `dev` y a las demás bases del servidor de pruebas.
 
 ## Hallazgos de auditoría pendientes
 
