@@ -60,6 +60,12 @@ class SecurityConfiguration {
         AuthorizationManager<RequestAuthorizationContext> offers = (authentication, request) ->
                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
                         && user.canRegisterOffers());
+        AuthorizationManager<RequestAuthorizationContext> analysis = (authentication, request) ->
+                new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
+                        && user.canAnalyzeOffers());
+        AuthorizationManager<RequestAuthorizationContext> approval = (authentication, request) ->
+                new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
+                        && user.canDecideOffers());
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -76,6 +82,10 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/offers", "/api/offers/discount-preview").access(offers)
                         .requestMatchers(HttpMethod.GET, "/api/offers/mine", "/api/offers/mine/{number}").access(offers)
+                        .requestMatchers(HttpMethod.GET, "/api/offers/analysis").access(analysis)
+                        .requestMatchers(HttpMethod.POST, "/api/offers/analysis/{number}/{action}").access(analysis)
+                        .requestMatchers(HttpMethod.GET, "/api/offers/approval").access(approval)
+                        .requestMatchers(HttpMethod.POST, "/api/offers/approval/{number}/{action}").access(approval)
                         .requestMatchers("/api/admin/**").access((authentication, request) ->
                                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof IdentityUser user
                                         && user.canAdminister()))

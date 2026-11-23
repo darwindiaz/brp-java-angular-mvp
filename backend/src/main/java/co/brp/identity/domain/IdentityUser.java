@@ -19,6 +19,14 @@ public record IdentityUser(long id, String name, String login, Role role, boolea
         return active && role == Role.RADICADOR && modules.contains(Module.RADICACION);
     }
 
+    public boolean canAnalyzeOffers() {
+        return active && role == Role.ANALISTA && modules.contains(Module.ANALISIS);
+    }
+
+    public boolean canDecideOffers() {
+        return active && role == Role.JEFE && modules.contains(Module.APROBACION);
+    }
+
     public static String normalizeLogin(String login) {
         return login.strip().toLowerCase(Locale.ROOT);
     }

@@ -104,12 +104,30 @@ de Compose para la prueba de cierre.
 Análisis y aprobación, gestión de adjuntos y frontend se mantienen en
 sus etapas del plan.
 
+## Etapa 7 — Ciclo de vida de ofertas
+
+Implementada y verificada. Las bandejas de análisis y aprobación y sus
+seis transiciones cubren RF-04, RS-04 y el control de concurrencia de RN-14.
+La migración 007 incorpora el analista y las fechas del flujo. La devolución
+conserva la asignación original. Cada comando exige la versión que vio el
+usuario y PostgreSQL protege la escritura mediante el versionado optimista
+de JPA. Una versión obsoleta o una transición inválida devuelve `409`.
+
+`gradlew.bat clean build` pasó con PostgreSQL 17.12 aislado mediante Docker
+Compose (`server_version_num = 170012`). Resultado de la suite completa:
+118 pruebas exitosas, incluidas 2 unitarias y 6 de integración nuevas, con
+0 fallos, 0 errores y 0 omitidas. Se comprobó una toma concurrente por HTTP
+y el rechazo de una escritura sobre una versión leída por dos transacciones.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta
   y prueba de deduplicación con una última fila no disponible.
-- Etapas 4, 5 y 7: cerrar la matriz por operación, módulo y contexto, el
-  bloqueo del último administrador y las fechas de acciones repetidas.
+- Etapas 4 y 5: cerrar la matriz general por operación, módulo y contexto
+  y revisar el bloqueo del último administrador.
+- Etapa 6, deuda aceptada para el cierre del proyecto: rechazar caracteres
+  NUL en entradas de radicación y cubrir el rollback ante un fallo intermedio
+  durante la escritura del agregado.
 - Etapa 8: confirmar los límites de adjuntos y diseñar la compensación de fallos de carga.
 - Etapas 9 a 12: comprobar los cuatro roles, ambas pestañas, frescura,
   acción de ofertar oculta, administración y vista previa. Verificar

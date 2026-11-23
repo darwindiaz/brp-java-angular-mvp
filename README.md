@@ -157,6 +157,27 @@ el total, el descuento y el estado. El alta y la vista previa devuelven
 `409` si el BRP vigente no está disponible con un precio válido. El alta
 vuelve a consultar el catálogo aunque antes se haya pedido una vista previa.
 
+### API de análisis y aprobación
+
+| Método y ruta | Permiso y operación |
+|---|---|
+| `GET /api/offers/analysis` | `ANALISTA` con módulo `ANALISIS`. Devuelve los radicados que puede tomar y las ofertas en proceso que tiene asignadas. |
+| `POST /api/offers/analysis/{number}/{action}` | Mismo permiso. Acciones `take`, `escalate` y `reject`. Solo el analista asignado puede escalar o rechazar una oferta en proceso. |
+| `GET /api/offers/approval` | `JEFE` con módulo `APROBACION`. Devuelve las ofertas escaladas. |
+| `POST /api/offers/approval/{number}/{action}` | Mismo permiso. Acciones `approve`, `reject` y `return`. La devolución conserva el analista asignado. |
+
+Envía el JWT en el encabezado `Authorization` y la versión de la bandeja en
+el cuerpo del comando, por ejemplo `{"version":0}`. La respuesta `200`
+contiene el resumen de la oferta, el identificador del analista, las fechas
+del flujo y la versión resultante. Si otra operación cambió la versión o
+el estado impide la acción, el servidor devuelve `409`. Ante un conflicto,
+actualiza la bandeja y revisa el estado antes de volver a intentar la acción.
+
+Para probar el recorrido, radica una oferta, tómala desde la bandeja de
+análisis y escálala. Desde aprobación, devuélvela y comprueba que aparece
+en la bandeja del mismo analista. Escálala de nuevo y apruébala con un jefe
+distinto del analista asignado.
+
 ## Pruebas de integración
 
 El cierre de la radicación (etapas 6.1 y 6.2) se verificó con
