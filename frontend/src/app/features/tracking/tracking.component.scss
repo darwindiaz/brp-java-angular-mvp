@@ -1,0 +1,27 @@
+h1, h2, p { margin: 0; }
+h1 { font-size: clamp(1.5rem, 4vw, 2.4rem); }
+h2 { font-size: 1.2rem; }
+.heading, .panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .7rem; }
+.freshness { color: #47645d; }
+.freshness button { margin-top: .4rem; }
+.tabs { display: flex; gap: .4rem; margin: 1rem 0; flex-wrap: wrap; border-bottom: 1px solid #d5e3de; }
+.tabs[hidden] { display: none; }
+button { border: 1px solid #829b93; color: inherit; background: white; border-radius: .45rem; padding: .5rem .75rem; font: inherit; cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+.tabs button { margin-bottom: .45rem; }
+.tabs button[aria-selected='true'] { background: #15463e; color: white; border-color: #15463e; }
+.panel-heading { margin-bottom: .8rem; }
+.table-scroll { max-width: 100%; overflow-x: auto; border: 1px solid #d5e3de; border-radius: .55rem; background: white; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: .7rem .8rem; vertical-align: top; border-bottom: 1px solid #e3ede9; }
+thead th { background: #ecf5f1; line-height: 1.25; }
+tbody tr:last-child > * { border-bottom: 0; }
+.number, time { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.status { display: inline-block; padding: .15rem .45rem; border-radius: .35rem; background: #edf1f0; }
+.status[data-status='DISPONIBLE'], .status[data-status='APROBADO'] { background: #daeee3; }
+.status[data-status='RECHAZADO'], .status[data-status='DADO_DE_BAJA'] { background: #f9e5e6; }
+.status, .asset-type { text-transform: capitalize; }
+.dates { display: grid; grid-template-columns: max-content max-content; gap: .2rem .7rem; margin: 0; font-size: .88rem; }
+.dates dt { color: #47645d; }
+.dates dd { margin: 0; font-variant-numeric: tabular-nums; }
+.error { color: #8c2733; background: #fff0ef; border-radius: .45rem; padding: .65rem .85rem; }

@@ -1,0 +1,83 @@
+<section aria-labelledby="approval-title">
+  <header class="heading">
+    <h1 id="approval-title">Bandeja de aprobación</h1>
+    <button type="button" (click)="reload()" [disabled]="loading() || processing()">Actualizar bandeja</button>
+  </header>
+
+  @if (loading()) { <p role="status">Actualizando bandeja…</p> }
+  @if (processing()) { <p role="status">Procesando decisión…</p> }
+  @if (outcomeUncertain()) {
+    <p class="error" role="alert">No fue posible confirmar el resultado de la decisión. Actualiza la bandeja antes de tomar otra decisión.</p>
+  }
+  @if (loadError()) { <p class="error" role="alert">{{ loadError() }}</p> }
+  @if (actionError()) { <p class="error" role="alert">{{ actionError() }}</p> }
+  @if (result(); as decision) {
+    <div class="notice" role="status">
+      @switch (decision.offer.status) {
+        @case ('APROBADO') { <strong>Oferta {{ decision.offer.registrationNumber }} aprobada.</strong> }
+        @case ('RECHAZADO') { <strong>Oferta {{ decision.offer.registrationNumber }} rechazada.</strong> }
+        @case ('EN_PROCESO') { <strong>Oferta {{ decision.offer.registrationNumber }} devuelta al analista asignado.</strong> }
+      }
+      @if (decision.offer.status === 'EN_PROCESO' && decision.returnedAt) {
+        <p>Fecha de devolución: {{ decision.returnedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      } @else if (decision.closedAt) {
+        <p>Fecha de cierre: {{ decision.closedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      }
+    </div>
+  }
+
+  @if (offers().length) {
+    <ul class="offers" aria-label="Ofertas escaladas" [attr.aria-busy]="loading() || processing()">
+      @for (item of offers(); track item.offer.registrationNumber) {
+        <li class="offer">
+          <header class="heading">
+            <div>
+              <h2>Oferta {{ item.offer.registrationNumber }}</h2>
+              <p class="secondary">BRP {{ item.offer.brpCode }}</p>
+            </div>
+            <p class="state">Escalada</p>
+          </header>
+
+          <dl class="summary">
+            <div><dt>Precio de referencia</dt><dd>{{ item.offer.referencePrice }}</dd></div>
+            <div><dt>Total ofertado</dt><dd>{{ item.offer.total }}</dd></div>
+            <div>
+              <dt>{{ item.offer.overprice ? 'Sobreprecio' : 'Descuento' }}</dt>
+              <dd>{{ item.offer.discount.replace('-', '') }} %</dd>
+            </div>
+            <div><dt>Radicación</dt><dd>{{ item.offer.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+            @if (item.escalatedAt) {
+              <div><dt>Escalamiento</dt><dd>{{ item.escalatedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+            }
+            @if (item.returnedAt) {
+              <div><dt>Última devolución</dt><dd>{{ item.returnedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+            }
+            @if (item.analystId !== null) {
+              <div><dt>ID del analista asignado</dt><dd>{{ item.analystId }}</dd></div>
+            }
+          </dl>
+
+          @if (confirmation(); as command) {
+            @if (command.item === item) {
+              <div class="notice confirmation" role="group" [attr.aria-label]="'Confirmar decisión para oferta ' + item.offer.registrationNumber">
+                <p>{{ descriptions[command.action].question }}</p>
+                <button type="button" (click)="confirmation.set(null)">Cancelar</button>
+                <button type="button" class="primary" (click)="decide()">Confirmar {{ descriptions[command.action].label.toLowerCase() }}</button>
+              </div>
+            }
+          }
+
+          <div class="actions">
+            @for (action of actions(item); track action) {
+              <button type="button" [class.primary]="action === 'approve'"
+                [disabled]="decisionsBlocked() || confirmation()?.item === item"
+                (click)="ask(item, action)">{{ descriptions[action].label }}</button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else if (!loading() && !loadError()) {
+    <p>No hay ofertas escaladas por atender.</p>
+  }
+</section>

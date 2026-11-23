@@ -1,0 +1,20 @@
+@if (auth.user(); as user) {
+  <div class="workspace">
+    <aside class="sidebar">
+      <a class="brand" routerLink="/inicio"><strong>BRP</strong><span>Bienes Recibidos en Pago</span></a>
+      <nav aria-label="Navegación principal">
+        <a routerLink="/inicio" routerLinkActive="current" ariaCurrentWhenActive="page">Inicio</a>
+        @for (module of modules(); track module.path) {
+          <a [routerLink]="['/', module.path]" routerLinkActive="current" ariaCurrentWhenActive="page">{{ module.label }}</a>
+        }
+      </nav>
+    </aside>
+    <div class="content">
+      <header>
+        <div class="user"><strong>{{ user.name }}</strong><span>{{ roleNames[user.role] }}</span></div>
+        <button type="button" (click)="auth.logout()">Cerrar sesión</button>
+      </header>
+      <main><router-outlet /></main>
+    </div>
+  </div>
+}

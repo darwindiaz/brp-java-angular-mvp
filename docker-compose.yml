@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    command: ["postgres", "-c", "log_error_verbosity=terse", "-c", "log_parameter_max_length_on_error=0"]
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:?Define POSTGRES_DB en .env}"
+      POSTGRES_USER: "${POSTGRES_USER:?Define POSTGRES_USER en .env}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}"
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  postgres_data:

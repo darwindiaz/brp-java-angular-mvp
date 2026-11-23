@@ -1,0 +1,33 @@
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: clamp(1.5rem, 4vw, 2.4rem); margin-bottom: 1rem; }
+h2 { font-size: 1.2rem; margin-bottom: .55rem; }
+h3 { font-size: 1rem; }
+.heading, .role-editor { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; }
+.heading { justify-content: space-between; margin-bottom: .65rem; }
+.heading h2 { margin: 0; }
+.panel { background: white; border: 1px solid #d5e3de; border-radius: .65rem; padding: clamp(.85rem, 2vw, 1.3rem); min-width: 0; }
+.editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.table-scroll { overflow-x: auto; max-width: 100%; }
+table { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+th, td { padding: .5rem .6rem; text-align: left; border-bottom: 1px solid #e3ede9; vertical-align: top; }
+thead th { background: #ecf5f1; }
+tr.selected { background: #e6f2ed; }
+.module { display: inline-block; background: #edf1f0; margin: 0 .25rem .2rem 0; padding: .12rem .35rem; border-radius: .3rem; }
+fieldset { display: grid; gap: .45rem; padding: 0; border: 0; min-width: 0; margin: 0; }
+label { font-weight: 650; }
+input, select, button { padding: .48rem .65rem; border: 1px solid #829b93; border-radius: .4rem; background: white; color: inherit; font: inherit; min-width: 0; }
+input, fieldset select { width: 100%; }
+button { cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+.primary { background: #15463e; color: white; border-color: #15463e; margin-top: .4rem; }
+.role-editor { display: flex; }
+.role-editor, .module-heading { margin-top: 1rem; }
+.module-list { list-style: none; margin: 0; padding: 0; }
+.module-list li { display: flex; align-items: center; justify-content: space-between; gap: .55rem; padding: .45rem 0; border-bottom: 1px solid #e3ede9; }
+.module-list span { display: block; color: #47645d; font-size: .88rem; }
+.secondary { color: #47645d; }
+.notice, .error { border-radius: .45rem; padding: .65rem .85rem; margin: .6rem 0; }
+.notice { background: #e6f2ed; }
+.notice button { margin-top: .4rem; }
+.error { background: #fff0ef; color: #8c2733; }
+.field-error { color: #8c2733; font-size: .9rem; }

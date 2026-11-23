@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    hikari:
+      data-source-properties:
+        "[logServerErrorDetail]": "false"
+  servlet:
+    multipart:
+      resolve-lazily: true
+      max-file-size: ${brp.attachments.max-file-size}
+      max-request-size: ${BRP_ATTACHMENTS_MAX_REQUEST_SIZE:50MB}
+  application:
+    name: brp-backend
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+
+brp:
+  attachments:
+    directory: ${BRP_ATTACHMENTS_DIRECTORY:./storage/offer-attachments}
+    max-file-size: ${BRP_ATTACHMENTS_MAX_FILE_SIZE:10MB}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

@@ -1,0 +1,31 @@
+services:
+  postgres:
+    ports: !reset []
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?Define POSTGRES_DB en .env}
+      SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Define POSTGRES_USER en .env}"
+      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}"
+      BRP_BOOTSTRAP_ADMIN_HASH: "${BRP_BOOTSTRAP_ADMIN_HASH:?Define BRP_BOOTSTRAP_ADMIN_HASH}"
+      BRP_JWT_SECRET_BASE64: "${BRP_JWT_SECRET_BASE64:?Define BRP_JWT_SECRET_BASE64}"
+      BRP_ATTACHMENTS_DIRECTORY: /app/storage/offer-attachments
+    volumes:
+      - offer_attachments:/app/storage/offer-attachments
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: frontend
+    ports:
+      - "127.0.0.1:${BRP_FRONTEND_PORT:-8088}:80"
+    depends_on:
+      - backend
+
+volumes:
+  offer_attachments:

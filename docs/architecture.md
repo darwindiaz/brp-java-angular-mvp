@@ -19,7 +19,7 @@ En Angular, organizar por inicio, radicación, análisis, aprobación, seguimien
 - Un código BRP puede tener múltiples registros de ingesta. Cada oferta corresponde a un BRP y conserva el precio de referencia tomado al radicar. Un BRP admite varias ofertas. [ADR-004](decisions/ADR-004.md)
 - Una oferta tiene un radicador y cero o un analista asignado. Contiene hasta cinco participaciones con los datos del oferente y hasta seis pagos por participación. Los datos registrados conservan su contexto histórico.
 - Una oferta puede tener varios adjuntos. Cada adjunto pertenece a una oferta y guarda metadatos. El archivo vive en disco configurable.
-- Usuario y módulo se relacionan mediante un permiso individual único. El evento de concesión o retiro conserva actor, destinatario, módulo, acción y fecha. La cardinalidad de roles queda en [supuestos](assumptions.md).
+- Cada usuario tiene un rol y puede recibir módulos individuales. Usuario y módulo se relacionan mediante un permiso único. El evento de concesión o retiro conserva actor, destinatario, módulo, acción, fecha y origen.
 
 ## Flujo y persistencia
 
@@ -30,6 +30,12 @@ En Angular, organizar por inicio, radicación, análisis, aprobación, seguimien
 5. Adjuntos valida acceso y contenido, usa rutas controladas y compensa fallos entre disco y base. Descarga por identificador mediante backend. [ADR-003](decisions/ADR-003.md)
 
 Liquibase versiona esquema, datos de catálogo, módulos y usuarios de prueba. El administrador inicial se siembra con hash BCrypt. La ingesta aplica normalización antes de persistir restricciones de PostgreSQL. No se agregan campos de auditoría ni @Version a BRP. La autorización de recursos se comprueba con datos vigentes. [ADR-002](decisions/ADR-002.md)
+
+Identidad usa `JdbcClient` para obtener la cuenta y sus módulos vigentes en
+una consulta y coordinar sus escrituras con la fila de bloqueo de PostgreSQL.
+Catálogo mantiene JPA. El cambio de un permiso y su evento de auditoría
+se confirman juntos. Las políticas de propiedad y asignación de ofertas
+pertenecen al módulo de ofertas.
 
 ## Errores y pruebas
 

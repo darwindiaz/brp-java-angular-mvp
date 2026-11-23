@@ -1,0 +1,21 @@
+<section class="connection-panel" aria-labelledby="connection-title">
+  <h1 id="connection-title">Conexión con el backend</h1>
+  <p class="connection-panel__description">Comprueba que Angular puede comunicarse con Spring Boot mediante <code>/api</code>.</p>
+
+  @let probe = result();
+  <p class="connection-panel__status" [attr.data-state]="probe.state" role="status">
+    @switch (probe.state) {
+      @case ('checking') { Comprobando conexión… }
+      @case ('up') { Backend disponible }
+      @case ('unavailable') { Backend no disponible }
+    }
+  </p>
+
+  <div class="connection-panel__actions">
+    <button type="button" (click)="checkBackend()" [disabled]="probe.state === 'checking'">Volver a comprobar</button>
+    <label><input type="checkbox" [formControl]="showDetails"> Mostrar detalle</label>
+  </div>
+  @if (showDetails.value && probe.state !== 'checking') {
+    <p class="connection-panel__detail"><code>GET /api/health</code> · {{ probe.detail }}</p>
+  }
+</section>
