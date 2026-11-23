@@ -84,7 +84,12 @@ class SecurityConfiguration {
                         .requestMatchers(health, login).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/offers", "/api/offers/discount-preview").access(offers)
-                        .requestMatchers(HttpMethod.GET, "/api/offers/mine", "/api/offers/mine/{number}").access(offers)
+                        .requestMatchers(HttpMethod.GET, "/api/offers/mine", "/api/offers/mine/{number}",
+                                "/api/offers/catalog").access(offers)
+                        .requestMatchers(HttpMethod.GET, "/api/follow-up/offers", "/api/follow-up/offers/{number}",
+                                "/api/follow-up/catalog", "/api/follow-up/catalog/freshness")
+                        .access((authentication, request) -> new AuthorizationDecision(
+                                authentication.get().getPrincipal() instanceof IdentityUser user && user.canFollowUp()))
                         .requestMatchers(HttpMethod.GET, "/api/offers/analysis").access(analysis)
                         .requestMatchers(HttpMethod.POST, "/api/offers/analysis/{number}/{action}").access(analysis)
                         .requestMatchers(HttpMethod.GET, "/api/offers/approval").access(approval)

@@ -27,6 +27,10 @@ public record IdentityUser(long id, String name, String login, Role role, boolea
         return active && role == Role.JEFE && modules.contains(Module.APROBACION);
     }
 
+    public boolean canFollowUp() {
+        return active && modules.contains(Module.SEGUIMIENTO);
+    }
+
     public boolean canAccessOfferAttachments() {
         return switch (role) {
             case RADICADOR -> canRegisterOffers();

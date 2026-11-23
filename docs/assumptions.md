@@ -19,7 +19,7 @@ DA-01 a DA-06 están en [requisitos](requirements.md). Comprenden monolito modul
 ## Preguntas pendientes de negocio
 
 - ¿Qué moneda acepta negocio?
-- ¿Qué módulo protege la consulta de frescura del catálogo?
+- La API de frescura de seguimiento requiere `SEGUIMIENTO`. Queda por confirmar qué muestra el encabezado general a usuarios sin ese módulo.
 - ¿Puede otro analista sustituir al asignado? ¿Se requieren motivo de rechazo e historial completo de cada escalamiento y devolución?
 - ¿Qué límites acumulados, eliminación o retención aplican a los adjuntos?
 - ¿Puede coexistir más de una fila diferente para el mismo código y día? Si ocurre, ¿cuál fuente decide el empate?
