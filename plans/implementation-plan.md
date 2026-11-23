@@ -191,6 +191,67 @@ omitidas.
 - El build de producción y diez comprobaciones locales de aritmética y serialización pasaron. Las 64 pruebas seleccionadas de dominio, persistencia, API y catálogo de selección pasaron en PostgreSQL aislado. La radicación completa desde Chrome queda pendiente con una cuenta de pruebas autorizada para Radicación.
 - Los adjuntos y los demás módulos conservan su planificación independiente.
 
+## Etapa 10.4 — Análisis de ofertas en Angular
+
+Implementación Angular sobre `c6ffc87`. Pasaron el build de producción
+con TypeScript y plantillas estrictos, nueve comprobaciones locales con
+servicio simulado y dos pruebas unitarias Java de transiciones. Queda
+pendiente el recorrido manual con un analista habilitado y datos de prueba.
+El backend exige una cuenta activa con rol `ANALISTA` y módulo `ANALISIS` en
+las cuatro operaciones de análisis.
+
+| Operación | Contrato | Estado, alcance y resultado |
+|---|---|---|
+| Bandeja | `GET /api/offers/analysis`, sin parámetros ni cuerpo | `200 WorkItem[]` en orden de número descendente. Incluye `RADICADO` que no radicó el actor y `EN_PROCESO` asignadas a él. |
+| Tomar | `POST /api/offers/analysis/{number}/take` | `RADICADO → EN_PROCESO`. Excluye el autor de la oferta y asigna el analista autenticado. |
+| Escalar | `POST /api/offers/analysis/{number}/escalate` | `EN_PROCESO → ESCALADO`, solo analista asignado. Registra escalamiento. |
+| Rechazar | `POST /api/offers/analysis/{number}/reject` | `EN_PROCESO → RECHAZADO`, solo analista asignado. Registra cierre. |
+
+En los tres POST, `number` es el número de radicación de tipo `long`.
+El cuerpo es solo `{ "version": 0 }` con la versión real de la fila como
+entero no negativo. Los tres devuelven `200 WorkItem` con la versión
+actualizada tras persistir y la nueva fecha de modificación. La bandeja
+puede devolver `401` o `403`. Los POST distinguen `400` para entrada
+inválida, `401` para sesión ausente o inválida, `403` para falta de
+autorización, `404` para oferta inexistente y `409` para conflicto de
+estado, versión o escritura concurrente. El dominio verifica estado y
+versión antes de las restricciones de actor dependientes de la oferta.
+
+`WorkItem` incluye `offer`, `analystId` (nullable), `version`,
+`modifiedAt`, `escalatedAt`, `returnedAt` y `closedAt`. Los eventos
+pendientes se representan con `null`. `offer` incluye `registrationNumber`,
+`brpCode`, `referencePrice`, `total`, `discount`, `overprice`, `status`
+y `createdAt`. Importes y descuento provienen del servidor como números
+JSON y las fechas representan instantes.
+
+El detalle de Análisis se diseña con el resumen de la fila autorizada de
+la bandeja. No hay un GET por número para Análisis. El detalle de
+Seguimiento requiere `SEGUIMIENTO` y carece de oferentes, pagos y versión.
+El detalle de ofertas propias exige `RADICADOR` y `RADICACION`. Si se
+requiere composición de la oferta en Análisis, queda por definir un
+contrato de acceso específico. Las devoluciones vuelven a `EN_PROCESO`
+con el analista original y se distinguen en la bandeja actual por
+`returnedAt`; no hay un endpoint ni filtro HTTP para devoluciones.
+
+Implementación y verificación:
+
+1. Modelos y servicio HTTP tipado. Conservar decimales y enteros `long`
+   sin pérdida de precisión al leer el JSON y reenviar la versión.
+2. Ruta diferida y bandeja con filtros locales de pendientes, asignadas
+   y devueltas. Reusar layout, sesión, interceptor y guard existentes.
+3. Detalle resumido, confirmaciones para escalar y rechazar, bloqueo de
+   envíos simultáneos por oferta y actualización a partir de la respuesta.
+4. Ante `409`, recargar la bandeja y exigir una nueva decisión del
+   usuario. Mantener la sesión ante `403` y delegar `401` al interceptor.
+   Verificar concurrencia, devolución al mismo analista y permisos.
+
+Archivos: `frontend/src/app/app.routes.ts` y, bajo
+`frontend/src/app/features/analysis/`, `models/analysis.models.ts`,
+`analysis-api.service.ts` y
+`analysis-list/analysis-list.component.{ts,html,scss}`. La bandeja
+presenta el resumen disponible en el contrato. El backend, la
+persistencia y la infraestructura se mantienen intactos.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta

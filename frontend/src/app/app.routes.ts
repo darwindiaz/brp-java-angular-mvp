@@ -2,6 +2,11 @@ import { Routes } from '@angular/router';
 import { requireGuest, requireModule, requireSession } from './core/auth/auth.guards';
 import { moduleRoutes } from './core/auth/navigation';
 
+const moduleComponents: Partial<Record<(typeof moduleRoutes)[number]['permission'], NonNullable<Routes[number]['loadComponent']>>> = {
+  RADICACION: () => import('./features/registration/offer-registration.component').then(m => m.OfferRegistrationComponent),
+  ANALISIS: () => import('./features/analysis/analysis-list/analysis-list.component').then(m => m.AnalysisListComponent),
+};
+
 export const routes: Routes = [
   {
     path: 'login',
@@ -25,9 +30,8 @@ export const routes: Routes = [
         path: module.path,
         data: { title: module.label },
         canActivate: [requireModule(module)],
-        loadComponent: module.permission === 'RADICACION'
-          ? () => import('./features/registration/offer-registration.component').then(m => m.OfferRegistrationComponent)
-          : () => import('./shared/module-unavailable.component').then(m => m.ModuleUnavailableComponent),
+        loadComponent: moduleComponents[module.permission]
+          ?? (() => import('./shared/module-unavailable.component').then(m => m.ModuleUnavailableComponent)),
       })),
     ],
   },

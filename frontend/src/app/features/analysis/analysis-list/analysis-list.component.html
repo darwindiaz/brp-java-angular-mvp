@@ -1,0 +1,76 @@
+<section aria-labelledby="analysis-title">
+  <header class="heading">
+    <h1 id="analysis-title">Bandeja de análisis</h1>
+    <button type="button" (click)="reload()" [disabled]="loading() || pending().size > 0">Actualizar bandeja</button>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filtrar ofertas">
+    @for (option of filters; track option.value) {
+      <button type="button" [attr.aria-pressed]="filter() === option.value"
+        (click)="filter.set(option.value)">{{ option.label }}</button>
+    }
+  </div>
+
+  @if (loading()) { <p role="status">Actualizando bandeja…</p> }
+  @if (loadError()) { <p class="error" role="alert">{{ loadError() }}</p> }
+  @if (actionError()) { <p class="error" role="alert">{{ actionError() }}</p> }
+  @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
+
+  @if (visible().length) {
+    <ul class="offers" aria-label="Ofertas de análisis" [attr.aria-busy]="loading()">
+      @for (item of visible(); track item.offer.registrationNumber) {
+        <li class="offer">
+          <header class="heading">
+            <div>
+              <h2>Oferta {{ item.offer.registrationNumber }}</h2>
+              <p class="brp">BRP {{ item.offer.brpCode }}</p>
+            </div>
+            <p class="state">{{ item.offer.status === 'RADICADO' ? 'Radicada' : 'En proceso' }}
+              @if (item.returnedAt) { <span>· Devuelta</span> }
+            </p>
+          </header>
+
+          <dl class="summary">
+            <div><dt>Precio de referencia</dt><dd>{{ item.offer.referencePrice }}</dd></div>
+            <div><dt>Total ofertado</dt><dd>{{ item.offer.total }}</dd></div>
+            <div>
+              <dt>{{ item.offer.overprice ? 'Sobreprecio' : 'Descuento' }}</dt>
+              <dd>{{ absolutePercentage(item.offer.discount) }} %</dd>
+            </div>
+            <div><dt>Radicación</dt><dd>{{ item.offer.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+            <div><dt>Modificación</dt><dd>{{ (item.modifiedAt | date:'dd/MM/yyyy HH:mm') ?? '—' }}</dd></div>
+            @if (item.escalatedAt) {
+              <div><dt>Escalamiento</dt><dd>{{ item.escalatedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+            }
+            @if (item.returnedAt) {
+              <div><dt>Devolución</dt><dd>{{ item.returnedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+            }
+          </dl>
+
+          @if (confirmation(); as command) {
+            @if (command.item === item) {
+              <div class="confirmation" role="group" [attr.aria-label]="'Confirmar acción para oferta ' + item.offer.registrationNumber">
+                <p>¿Confirmas que quieres {{ command.action === 'escalate' ? 'escalar' : 'rechazar' }} esta oferta?</p>
+                <button type="button" (click)="confirmation.set(null)">Cancelar</button>
+                <button type="button" class="primary" (click)="confirm()">Confirmar {{ labels[command.action].toLowerCase() }}</button>
+              </div>
+            }
+          }
+
+          <div class="actions">
+            @for (action of actions(item); track action) {
+              <button type="button" [class.primary]="action !== 'reject'"
+                [disabled]="loading() || pending().has(item.offer.registrationNumber) || confirmation()?.item === item"
+                (click)="select(action, item)">{{ labels[action] }}</button>
+            }
+            @if (pending().has(item.offer.registrationNumber)) {
+              <span role="status">Procesando…</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else if (!loading() && !loadError()) {
+    <p>No hay ofertas para el filtro seleccionado.</p>
+  }
+</section>
