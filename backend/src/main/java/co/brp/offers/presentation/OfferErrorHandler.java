@@ -3,7 +3,9 @@ package co.brp.offers.presentation;
 import java.util.NoSuchElementException;
 
 import co.brp.offers.application.OfferRegistration.BrpUnavailable;
+import co.brp.offers.domain.Offer.ForbiddenAction;
 import co.brp.offers.domain.Offer.InvalidOffer;
+import co.brp.offers.domain.Offer.TransitionConflict;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -13,7 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-@RestControllerAdvice(assignableTypes = OfferController.class)
+@RestControllerAdvice(assignableTypes = {OfferController.class, OfferLifecycleController.class})
 class OfferErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,6 +45,16 @@ class OfferErrorHandler {
     @ExceptionHandler(BrpUnavailable.class)
     ProblemDetail unavailable() {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "El BRP vigente no está disponible con un precio válido.");
+    }
+
+    @ExceptionHandler(ForbiddenAction.class)
+    ProblemDetail forbiddenAction() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "El usuario no puede realizar esta acción sobre la oferta.");
+    }
+
+    @ExceptionHandler(TransitionConflict.class)
+    ProblemDetail transitionConflict() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "El estado o la versión de la oferta no permite la transición.");
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)

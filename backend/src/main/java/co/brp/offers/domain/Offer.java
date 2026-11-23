@@ -66,6 +66,21 @@ public class Offer {
     @Column(name = "creado_en", updatable = false)
     private Instant createdAt;
 
+    @Column(name = "analista_id")
+    private Long analystId;
+
+    @Column(name = "modificado_en")
+    private Instant modifiedAt;
+
+    @Column(name = "escalado_en")
+    private Instant escalatedAt;
+
+    @Column(name = "devuelto_en")
+    private Instant returnedAt;
+
+    @Column(name = "finalizado_en")
+    private Instant closedAt;
+
     @Version
     @Column(name = "version")
     private long version;
@@ -111,6 +126,41 @@ public class Offer {
         return offer;
     }
 
+    public void transition(Action action, long actorId, long expectedVersion, Instant now) {
+        if (version != expectedVersion || status != action.origin) {
+            throw new TransitionConflict();
+        }
+        switch (action) {
+            case TAKE -> {
+                if (registrantId == actorId) {
+                    throw new ForbiddenAction();
+                }
+                analystId = actorId;
+            }
+            case ESCALATE, ANALYST_REJECT -> {
+                if (!Objects.equals(analystId, actorId)) {
+                    throw new ForbiddenAction();
+                }
+            }
+            case APPROVE -> {
+                if (Objects.equals(analystId, actorId)) {
+                    throw new ForbiddenAction();
+                }
+            }
+            case RETURN, CHIEF_REJECT -> {
+                // La devolución conserva la asignación original.
+            }
+        }
+        status = action.destination;
+        modifiedAt = now;
+        switch (action) {
+            case ESCALATE -> escalatedAt = now;
+            case RETURN -> returnedAt = now;
+            case APPROVE, ANALYST_REJECT, CHIEF_REJECT -> closedAt = now;
+            case TAKE -> { }
+        }
+    }
+
     public static BigDecimal calculateDiscount(BigDecimal referencePrice, BigDecimal total) {
         var price = positiveMoney(referencePrice);
         return price.subtract(positiveMoney(total)).multiply(PERCENT)
@@ -147,10 +197,39 @@ public class Offer {
     public BigDecimal discount() { return discount; }
     public Status status() { return status; }
     public Instant createdAt() { return createdAt; }
+    public Long analystId() { return analystId; }
+    public Instant modifiedAt() { return modifiedAt; }
+    public Instant escalatedAt() { return escalatedAt; }
+    public Instant returnedAt() { return returnedAt; }
+    public Instant closedAt() { return closedAt; }
+    public long version() { return version; }
     public List<Participation> participations() { return List.copyOf(participations); }
 
     public enum Status {
         RADICADO, EN_PROCESO, ESCALADO, APROBADO, RECHAZADO, DESISTIDO
+    }
+
+    public enum Action {
+        TAKE(Status.RADICADO, Status.EN_PROCESO),
+        ESCALATE(Status.EN_PROCESO, Status.ESCALADO),
+        ANALYST_REJECT(Status.EN_PROCESO, Status.RECHAZADO),
+        APPROVE(Status.ESCALADO, Status.APROBADO),
+        CHIEF_REJECT(Status.ESCALADO, Status.RECHAZADO),
+        RETURN(Status.ESCALADO, Status.EN_PROCESO);
+
+        private final Status origin;
+        private final Status destination;
+
+        Action(Status origin, Status destination) {
+            this.origin = origin;
+            this.destination = destination;
+        }
+    }
+
+    public static final class TransitionConflict extends RuntimeException {
+    }
+
+    public static final class ForbiddenAction extends RuntimeException {
     }
 
     public enum IdentificationType { CC, NIT }

@@ -51,3 +51,10 @@ databaseChangeLog:
         - sqlFile:
             path: 006-create-offers.sql
             relativeToChangelogFile: true
+  - changeSet:
+      id: 007-offer-lifecycle
+      author: brp
+      changes:
+        - sqlFile:
+            path: 007-offer-lifecycle.sql
+            relativeToChangelogFile: true
