@@ -252,6 +252,29 @@ Archivos: `frontend/src/app/app.routes.ts` y, bajo
 presenta el resumen disponible en el contrato. El backend, la
 persistencia y la infraestructura se mantienen intactos.
 
+## Etapa 10.5 — Aprobación de ofertas en Angular
+
+- Bandeja de ofertas escaladas con carga diferida, protegida por el rol
+  `JEFE` y el módulo `APROBACION`. Usa `GET /api/offers/approval` y
+  `POST /api/offers/approval/{number}/{approve|reject|return}` con la
+  versión de la fila. Cada decisión requiere confirmación y usa el
+  resultado del servidor para mostrar la fecha de cierre o devolución.
+- La devolución conserva al analista original. La interfaz recarga la
+  bandeja ante `409` sin repetir la operación, conserva la sesión ante
+  `403` y delega `401` al interceptor existente.
+- Si una decisión falla por red o por tiempo de espera, Aprobación informa
+  que el resultado es incierto y bloquea nuevas decisiones hasta recargar
+  la bandeja correctamente. Una recarga fallida conserva el bloqueo y
+  permite reintentar la consulta. Las solicitudes tienen un límite de
+  30 segundos. Pasaron ocho comprobaciones locales de esta corrección.
+- Aprobación y Análisis comparten el contrato de ciclo de vida y el
+  tratamiento de precisión de la versión y los importes. Se mantienen
+  los contratos del servidor y la infraestructura existente.
+- Pasaron la compilación de producción con TypeScript y plantillas
+  estrictos, diez comprobaciones locales con servicios simulados y dos
+  pruebas unitarias Java de transiciones. El recorrido manual queda
+  pendiente para la validación integral con usuarios de prueba.
+
 ## Hallazgos de auditoría pendientes
 
 - Etapa 3: concretar normalización en la migración, referencia a la ingesta

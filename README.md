@@ -88,6 +88,10 @@ Inicia sesión como radicador con el módulo `RADICACION` y abre **Radicación**
 
 Inicia sesión como analista con el módulo `ANALISIS` y abre **Análisis**. La bandeja distingue las ofertas pendientes por tomar, las asignadas al usuario y las devueltas por el jefe. Tras tomar una oferta, puedes escalarla o rechazarla con confirmación. Si otra operación cambia la oferta, la bandeja se actualiza y puedes decidir de nuevo con la versión vigente.
 
+### Aprobación desde Angular
+
+Inicia sesión como jefe con el módulo `APROBACION` y abre **Aprobación**. La bandeja muestra las ofertas escaladas y permite confirmar su aprobación, rechazo o devolución al analista asignado. El resultado muestra la fecha de cierre o devolución informada por el servidor. Si otro usuario modifica la oferta, la bandeja se recarga y puedes decidir de nuevo con la información vigente.
+
 ## Identidad y aprovisionamiento
 
 Antes del primer arranque, genera el hash BCrypt de la contraseña inicial
